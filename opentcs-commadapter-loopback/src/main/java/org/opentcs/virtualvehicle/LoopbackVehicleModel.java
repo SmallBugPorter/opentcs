@@ -36,8 +36,19 @@ public class LoopbackVehicleModel
    */
   private final VelocityController velocityController;
 
+  private final boolean rotationEnabled;
+  private final double maxAngularVelocity;
+  private final double maxAngularAcceleration;
+  private final double maxAngularDeceleration;
+  private volatile boolean rotating;
+  private volatile double angularVelocity;
+
   public LoopbackVehicleModel(Vehicle attachedVehicle) {
     super(attachedVehicle);
+    rotationEnabled = Boolean.parseBoolean(attachedVehicle.getProperty("loopback:rotationEnabled"));
+    maxAngularVelocity = angularLimit(attachedVehicle, "loopback:maxAngularVelocity", 90);
+    maxAngularAcceleration = angularLimit(attachedVehicle, "loopback:maxAngularAcceleration", 180);
+    maxAngularDeceleration = angularLimit(attachedVehicle, "loopback:maxAngularDeceleration", 180);
     this.velocityController = new VelocityController(
         parseDeceleration(attachedVehicle),
         parseAcceleration(attachedVehicle),
@@ -47,6 +58,44 @@ public class LoopbackVehicleModel
     this.operatingTime = parseOperatingTime(attachedVehicle);
     this.loadOperation = extractLoadOperation(attachedVehicle);
     this.unloadOperation = extractUnloadOperation(attachedVehicle);
+  }
+
+  private static double angularLimit(Vehicle vehicle, String property, double fallback) {
+    String configured = vehicle.getProperty(property);
+    double value = configured == null ? fallback : Double.parseDouble(configured);
+    if (!RotationProfile.positive(value)) {
+      throw new IllegalArgumentException(property + " must be finite and positive (degrees)");
+    }
+    return value;
+  }
+
+  public boolean isRotationEnabled() {
+    return rotationEnabled;
+  }
+
+  public double getMaxAngularVelocity() {
+    return maxAngularVelocity;
+  }
+
+  public double getMaxAngularAcceleration() {
+    return maxAngularAcceleration;
+  }
+
+  public double getMaxAngularDeceleration() {
+    return maxAngularDeceleration;
+  }
+
+  public boolean isRotating() {
+    return rotating;
+  }
+
+  public double getAngularVelocity() {
+    return angularVelocity;
+  }
+
+  void setRotationState(boolean rotating, double angularVelocity) {
+    this.rotating = rotating;
+    this.angularVelocity = angularVelocity;
   }
 
   public String getLoadOperation() {

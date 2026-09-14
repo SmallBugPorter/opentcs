@@ -376,6 +376,12 @@ public class LoopbackCommunicationAdapter
   @Override
   protected VehicleProcessModelTO createCustomTransferableProcessModel() {
     return new LoopbackVehicleModelTO()
+        .setRotationEnabled(getProcessModel().isRotationEnabled())
+        .setRotating(getProcessModel().isRotating())
+        .setAngularVelocity(getProcessModel().getAngularVelocity())
+        .setMaxAngularVelocity(getProcessModel().getMaxAngularVelocity())
+        .setMaxAngularAcceleration(getProcessModel().getMaxAngularAcceleration())
+        .setMaxAngularDeceleration(getProcessModel().getMaxAngularDeceleration())
         .setLoadOperation(getProcessModel().getLoadOperation())
         .setMaxAcceleration(getProcessModel().getMaxAcceleration())
         .setMaxDeceleration(getProcessModel().getMaxDecceleration())
@@ -415,22 +421,104 @@ public class LoopbackCommunicationAdapter
       );
     }
     else {
-      getProcessModel().getVelocityController().addWayEntry(
-          new WayEntry(
-              step.getPath().getLength(),
-              maxVelocity(step),
-              step.getDestinationPoint().getName(),
-              step.getVehicleOrientation()
-          )
-      );
+      startRotationOrMovement(command);
+    }
+  }
 
-      LOG.debug("Starting movement simulation...");
+  private void startRotationOrMovement(MovementCommand command) {
+    Step step = command.getStep();
+    if (!getProcessModel().isRotationEnabled() || step.getSourcePoint() == null) {
+      startMovement(command);
+      return;
+    }
+    var source = step.getSourcePoint().getPose().getPosition();
+    var destination = step.getDestinationPoint().getPose().getPosition();
+    double dx = (double) destination.getX() - source.getX();
+    double dy = (double) destination.getY() - source.getY();
+    if (dx == 0 && dy == 0) {
+      startMovement(command);
+      return;
+    }
+    double target = RotationProfile.heading(
+        dx, dy,
+        step.getVehicleOrientation() == Vehicle.Orientation.BACKWARD
+    );
+    double current = getProcessModel().getPose().getOrientationAngle();
+    // An unspecified startup heading is aligned with the first road, not assumed to be zero.
+    if (!Double.isFinite(current)) {
+      getProcessModel().setPose(getProcessModel().getPose().withOrientationAngle(target));
+      startMovement(command);
+      return;
+    }
+    var rotation = new RotationProfile(
+        current, target,
+        getProcessModel().getMaxAngularVelocity(), getProcessModel().getMaxAngularAcceleration(),
+        getProcessModel().getMaxAngularDeceleration()
+    );
+    if (rotation.duration() < 1e-9) {
+      startMovement(command);
+      return;
+    }
+    // No way entry is queued yet. Reset translation while turning at the source point.
+    getProcessModel().getVelocityController().advanceTime(1);
+    getProcessModel().setRotationState(true, 0);
+    LOG.debug(
+        "{}: Rotating from {} to {} degrees in {} s", getName(), current, target,
+        rotation.duration()
+    );
+    getExecutor().schedule(
+        () -> rotationSimulation(command, rotation, 0),
+        SIMULATION_PERIOD, TimeUnit.MILLISECONDS
+    );
+  }
+
+  private void rotationSimulation(
+      MovementCommand command, RotationProfile rotation, double elapsed
+  ) {
+    if (!isInitialized() || !Objects.equals(getSentCommands().peek(), command)) {
+      getProcessModel().setRotationState(false, 0);
+      isSimulationRunning = false;
+      if (isInitialized() && isEnabled() && !getSentCommands().isEmpty()) {
+        isSimulationRunning = true;
+        simulateNextCommand();
+      }
+      return;
+    }
+    boolean paused = !isEnabled() || getProcessModel().isVehiclePaused();
+    double next = paused ? elapsed
+        : Math.min(rotation.duration(), elapsed + getSimulationTimeStep() / 1000.0);
+    getProcessModel().setPose(
+        getProcessModel().getPose().withOrientationAngle(rotation.angleAt(next))
+    );
+    getProcessModel().setRotationState(
+        true,
+        paused ? 0 : rotation.velocityAt(next)
+    );
+    if (next >= rotation.duration()) {
+      getProcessModel().setRotationState(false, 0);
+      startMovement(command);
+    }
+    else {
       getExecutor().schedule(
-          () -> movementSimulation(command),
-          SIMULATION_PERIOD,
-          TimeUnit.MILLISECONDS
+          () -> rotationSimulation(command, rotation, next),
+          SIMULATION_PERIOD, TimeUnit.MILLISECONDS
       );
     }
+    // No position/commandExecuted feedback during rotation: Kernel retains resource allocations.
+  }
+
+  private void startMovement(MovementCommand command) {
+    Step step = command.getStep();
+    getProcessModel().getVelocityController().addWayEntry(
+        new WayEntry(
+            step.getPath().getLength(), maxVelocity(step),
+            step.getDestinationPoint().getName(), step.getVehicleOrientation()
+        )
+    );
+    getExecutor().schedule(
+        () -> movementSimulation(command), SIMULATION_PERIOD,
+        TimeUnit.MILLISECONDS
+    );
   }
 
   private int maxVelocity(Step step) {
@@ -452,6 +540,7 @@ public class LoopbackCommunicationAdapter
     WayEntry prevWayEntry = getProcessModel().getVelocityController().getCurrentWayEntry();
     getProcessModel().getVelocityController().advanceTime(getSimulationTimeStep());
     WayEntry currentWayEntry = getProcessModel().getVelocityController().getCurrentWayEntry();
+    updateMovementPose(command.getStep(), prevWayEntry != currentWayEntry);
     //if we are still on the same way entry then reschedule to do it again
     if (prevWayEntry == currentWayEntry) {
       getExecutor().schedule(
@@ -477,6 +566,32 @@ public class LoopbackCommunicationAdapter
         finishMovementCommand(command);
         simulateNextCommand();
       }
+    }
+  }
+
+  /**
+   * Publish geometric progress without acknowledging arrival or releasing route resources.
+   */
+  private void updateMovementPose(Step step, boolean arrived) {
+    if (step.getSourcePoint() == null) {
+      return;
+    }
+    Triple source = step.getSourcePoint().getPose().getPosition();
+    Triple destination = step.getDestinationPoint().getPose().getPosition();
+    double fraction = arrived ? 1.0 : Math.max(
+        0.0, Math.min(
+            1.0,
+            getProcessModel().getVelocityController().getCurrentPosition()
+                / (double) Math.max(1L, step.getPath().getLength())
+        )
+    );
+    Triple position = new Triple(
+        Math.round(source.getX() + ((double) destination.getX() - source.getX()) * fraction),
+        Math.round(source.getY() + ((double) destination.getY() - source.getY()) * fraction),
+        Math.round(source.getZ() + ((double) destination.getZ() - source.getZ()) * fraction)
+    );
+    if (!position.equals(getProcessModel().getPose().getPosition())) {
+      getProcessModel().setPose(getProcessModel().getPose().withPosition(position));
     }
   }
 

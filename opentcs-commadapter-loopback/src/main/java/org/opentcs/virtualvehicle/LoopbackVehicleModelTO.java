@@ -48,11 +48,74 @@ public class LoopbackVehicleModelTO
    */
   private boolean vehiclePaused;
 
+  private boolean rotationEnabled;
+  private boolean rotating;
+  private double maxAngularVelocity;
+  private double maxAngularAcceleration;
+  private double maxAngularDeceleration;
+  private double angularVelocity;
+
   /**
    * Creates a new instance.
    */
   public LoopbackVehicleModelTO() {
   }
+
+
+  public boolean isRotationEnabled() {
+    return rotationEnabled;
+  }
+
+  public LoopbackVehicleModelTO setRotationEnabled(boolean value) {
+    rotationEnabled = value;
+    return this;
+  }
+
+  public boolean isRotating() {
+    return rotating;
+  }
+
+  public LoopbackVehicleModelTO setRotating(boolean value) {
+    rotating = value;
+    return this;
+  }
+
+  public double getMaxAngularVelocity() {
+    return maxAngularVelocity;
+  }
+
+  public LoopbackVehicleModelTO setMaxAngularVelocity(double value) {
+    maxAngularVelocity = value;
+    return this;
+  }
+
+  public double getMaxAngularAcceleration() {
+    return maxAngularAcceleration;
+  }
+
+  public LoopbackVehicleModelTO setMaxAngularAcceleration(double value) {
+    maxAngularAcceleration = value;
+    return this;
+  }
+
+  public double getMaxAngularDeceleration() {
+    return maxAngularDeceleration;
+  }
+
+  public LoopbackVehicleModelTO setMaxAngularDeceleration(double value) {
+    maxAngularDeceleration = value;
+    return this;
+  }
+
+  public double getAngularVelocity() {
+    return angularVelocity;
+  }
+
+  public LoopbackVehicleModelTO setAngularVelocity(double value) {
+    angularVelocity = value;
+    return this;
+  }
+
 
   public boolean isSingleStepModeEnabled() {
     return singleStepModeEnabled;
