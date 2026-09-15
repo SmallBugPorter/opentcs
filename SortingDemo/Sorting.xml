@@ -3566,363 +3566,378 @@
     </path>
     <vehicle name="Sorting-AGV-01" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_1" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-01" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_1" />
         <vehicleLayout color="#E62E2E" />
     </vehicle>
     <vehicle name="Sorting-AGV-02" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_2" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#E65C2E" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-02" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_2" />
+        <vehicleLayout color="#E65A2E" />
     </vehicle>
     <vehicle name="Sorting-AGV-03" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_3" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#E68A2E" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-03" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_3" />
+        <vehicleLayout color="#E6862E" />
     </vehicle>
     <vehicle name="Sorting-AGV-04" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_4" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#E6B82E" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-04" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_4" />
+        <vehicleLayout color="#E6B22E" />
     </vehicle>
     <vehicle name="Sorting-AGV-05" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_5" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#E6E62E" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-05" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_5" />
+        <vehicleLayout color="#E6DE2E" />
     </vehicle>
     <vehicle name="Sorting-AGV-06" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_6" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#B8E62E" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-06" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_6" />
+        <vehicleLayout color="#C1E62E" />
     </vehicle>
     <vehicle name="Sorting-AGV-07" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_7" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#8AE62E" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-07" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_7" />
+        <vehicleLayout color="#95E62E" />
     </vehicle>
     <vehicle name="Sorting-AGV-08" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_8" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#5CE62E" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-08" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_8" />
+        <vehicleLayout color="#69E62E" />
     </vehicle>
     <vehicle name="Sorting-AGV-09" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_9" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#2EE62E" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-09" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_9" />
+        <vehicleLayout color="#3DE62E" />
     </vehicle>
     <vehicle name="Sorting-AGV-10" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_10" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#2EE65C" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-10" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_10" />
+        <vehicleLayout color="#2EE64B" />
     </vehicle>
     <vehicle name="Sorting-AGV-11" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_11" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#2EE68A" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-11" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_11" />
+        <vehicleLayout color="#2EE677" />
     </vehicle>
     <vehicle name="Sorting-AGV-12" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_12" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#2EE6B8" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-12" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_12" />
+        <vehicleLayout color="#2EE6A3" />
     </vehicle>
     <vehicle name="Sorting-AGV-13" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_13" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#2EE6E6" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-13" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_13" />
+        <vehicleLayout color="#2EE6CF" />
     </vehicle>
     <vehicle name="Sorting-AGV-14" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_14" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#2EB8E6" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-14" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_14" />
+        <vehicleLayout color="#2ECFE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-15" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_15" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#2E8AE6" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-15" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_15" />
+        <vehicleLayout color="#2EA3E6" />
     </vehicle>
     <vehicle name="Sorting-AGV-16" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_16" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#2E5CE6" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-16" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_16" />
+        <vehicleLayout color="#2E77E6" />
     </vehicle>
     <vehicle name="Sorting-AGV-17" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_17" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#2E2EE6" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-17" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_17" />
+        <vehicleLayout color="#2E4BE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-18" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_18" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#5C2EE6" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-18" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_18" />
+        <vehicleLayout color="#3D2EE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-19" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_19" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#8A2EE6" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-19" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_19" />
+        <vehicleLayout color="#692EE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-20" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_20" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#B82EE6" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-20" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_20" />
+        <vehicleLayout color="#952EE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-21" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_21" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#E62EE6" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-21" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_21" />
+        <vehicleLayout color="#C12EE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-22" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_22" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#E62EB8" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-22" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_22" />
+        <vehicleLayout color="#E62EDE" />
     </vehicle>
     <vehicle name="Sorting-AGV-23" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_23" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#E62E8A" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-23" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_23" />
+        <vehicleLayout color="#E62EB2" />
     </vehicle>
     <vehicle name="Sorting-AGV-24" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
         <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
-        <property name="tcs:preferredAdapterClass" value="org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory" />
-        <property name="loopback:initialPosition" value="init_24" />
-        <property name="loopback:loadOperation" value="Load cargo" />
-        <property name="loopback:unloadOperation" value="Unload cargo" />
-        <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="1000" />
-        <property name="loopback:deceleration" value="-1000" />
-        <property name="loopback:rotationEnabled" value="true" />
-        <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="180" />
-        <property name="loopback:maxAngularDeceleration" value="180" />
-        <vehicleLayout color="#E62E5C" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-24" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_24" />
+        <vehicleLayout color="#E62E86" />
+    </vehicle>
+    <vehicle name="Sorting-AGV-25" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
+        <boundingBox length="500" width="500" height="400" referenceOffsetX="0" referenceOffsetY="0" />
+        <property name="tcs:preferredAdapterClass" value="org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl" />
+        <property name="vda5050:version" value="2.0" />
+        <property name="vda5050:interfaceName" value="uagv" />
+        <property name="vda5050:manufacturer" value="SortingDemo" />
+        <property name="vda5050:serialNumber" value="Sorting-AGV-25" />
+        <property name="vda5050:mapId" value="Sorting" />
+        <property name="vda5050:maxStepsBase" value="1" />
+        <property name="vda5050:maxStepsHorizon" value="0" />
+        <property name="vda5050:vehicleLengthLoaded" value="500" />
+        <property name="vda5050:vehicleLengthUnloaded" value="500" />
+        <property name="sorting:initialPosition" value="init_25" />
+        <vehicleLayout color="#E62E5A" />
     </vehicle>
     <locationType name="Pickup">
         <allowedOperation name="Load cargo" />

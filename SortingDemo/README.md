@@ -1,18 +1,128 @@
-# SortingDemo：openTCS 原生 Scheduler 分拣仿真
+# SortingDemo：25 车 MQTT / VDA5050 分拣仿真
 
-`Sorting.xml` 从 `Sorting.building.yaml` 生成，包含 253 个导航点、424 条路径、34 个下料位置、3 个上料位置、25 个充电位和 24 台 Loopback 车辆。地图中的 `droppff_1` 至 `droppff_12` 拼写保持原样，与 `dropoff_13` 至 `dropoff_34` 一起作为下料目标。
+分拣地图中全部 25 辆车使用 openTCS 的 VDA5050 2.0 通信适配器。独立进程 `SortingMqttFleet` 为每辆车运行一个模拟器，通过真实 MQTT Broker 接收订单、上报位置、电量、装卸货及连接状态。
 
-## 调度方式
+模拟器由项目 `opentcs-commadapter-vda5050/.../v2_0/simulation/VehicleSimulator.java` 示例改编，复用其 VDA5050 消息类型和 JSON 序列化器。示例中的固定单车身份、`v1` topic、交互式标准输入和不完整动作处理已由本目录的多车实现替代。没有修改上游示例，也不需要重新构建整个 openTCS。
 
-使用 openTCS 原生 Router、DefaultVehicleController 和 Scheduler。脚本只生成作业任务，不再执行时间步预约，也不等待整个车队到齐后才发送下一步。
+```text
+SortingSimulation（作业生成、统计）
+    ↓ Kernel API
+openTCS Kernel（Router / Scheduler / VDA5050 适配器）
+    ↕ MQTT
+MQTT Broker
+    ↕ MQTT
+SortingMqttFleet（25 个独立 Client ID，各自持有车辆状态）
+```
 
-每台车辆独立执行：
+车辆端程序不调用 Kernel API，也不会通过 Loopback 消息修改位置或电量。地图在 Operations Desk 上显示的车辆状态来自 MQTT `state` 消息。
 
-1. 上料任务：按预计行驶成本和排队数量动态选择上料位，经过其四个等待点，最后执行 `Load cargo`。
-2. 送货任务：一个目标位置、一个 `Unload cargo` 操作。中间道路由 Router 规划，普通中间点不再分别生成运输订单。
-3. 落料完成后，电量大于 20% 时继续上料；电量小于等于 20% 时前往自己的充电位。
+车队数量统一配置在 `simulation.properties` 的 `fleet.size=25`。地图生成、派单、统计和 MQTT 校验均使用该值；增加数量时必须存在对应 `init_N` 点，重新初始化会备份旧统计。
 
-车辆控制器向 Scheduler 声明路线资源序列，逐段申请资源，收到执行反馈后释放已驶离的资源。资源被占用时，相应车辆等待；脚本不会强制所有车辆同步等待。上料等待点仍是显式任务途经点，可能出现命令切换停顿。Loopback 已扩展节点处的旋转仿真；直线运动仍为简化模型，不代表真实车辆完整的连续速度曲线。
+## 首次迁移 / 初始化
+
+在 `/home/lebi/opentcs_ws/opentcs` 项目根目录执行，需要 JDK 21、Python 3 / PyYAML、已构建的发行目录、运行中的 Kernel 和 MQTT Broker。
+
+Kernel 的 `build/install/opentcs/opentcs-kernel/config/opentcs-kernel.properties` 应配置：
+
+```properties
+commadapter.vehicle.vda5050.enabledVersions = 2.0
+commadapter.vehicle.vda5050.mqtt.brokerHost = 127.0.0.1
+commadapter.vehicle.vda5050.mqtt.brokerPort = 1883
+commadapter.vehicle.vda5050.mqtt.connectionEncrypted = false
+commadapter.vehicle.vda5050.mqtt.username = YOUR_BROKER_USER
+commadapter.vehicle.vda5050.mqtt.password = YOUR_BROKER_PASSWORD
+commadapter.vehicle.vda5050.mqtt.clientId = opentcs-kernel-01
+```
+
+按实际 Broker 配置填写地址、认证和 TLS 参数，修改后重启 Kernel。模拟器读取同一组配置（基线默认值 → 自定义默认值 → `opentcs-kernel.properties`），密码不会复制到地图、命令行或日志。模拟器和 Kernel 在同一主机环境下运行，故使用相同 Broker 地址；将模拟器搬到另一台主机/容器时，需要提供该环境可访问的配置。
+
+初始化流程：
+
+```bash
+SortingDemo/simulation.sh stop
+SortingDemo/mqtt-vehicles.sh stop
+python3 SortingDemo/convert_sorting.py
+SortingDemo/simulation.sh check
+SortingDemo/mqtt-vehicles.sh check
+SortingDemo/simulation.sh setup
+SortingDemo/mqtt-vehicles.sh start
+SortingDemo/simulation.sh status
+SortingDemo/simulation.sh start
+```
+
+`setup` 会替换 Kernel 地图并重置本次分拣统计，要求所有现有任务结束、派单器和 MQTT 模拟器都已停止。旧地图、派单检查点、小时统计、车辆模拟器检查点会备份到 `SortingDemo/runtime/`。旧 Loopback 的检查点不能直接迁移到 MQTT 模式。不要在有进行中运输任务时直接上传地图或重置车辆。
+
+`mqtt-vehicles.sh start` 启动一个后台 Java 进程，其中有 25 个 MQTT 客户端；启动日志应出现 25 条 `ONLINE Sorting-AGV-xx`。`simulation.sh status` 应显示 25 辆车驱动已启用、位置为各自 `init_N`、状态为 `IDLE`，此后启动派单。
+
+## 日常启动、停止与恢复
+
+已完成 `setup` 后，平时无需再次初始化。`setup` 必须在 MQTT 模拟器停止时执行；运行中的车队不允许重置。
+
+`simulation.sh start` 会先校验车队与任务检查点，再启用 Kernel 重启后处于禁用状态的 VDA5050 驱动，并将这些恢复的车辆设为 `TO_BE_UTILIZED`。已启用车辆的集成级别和暂停状态不变。收到 MQTT 状态后才为可用车辆派单：
+
+```bash
+SortingDemo/mqtt-vehicles.sh start
+SortingDemo/simulation.sh start
+SortingDemo/simulation.sh status
+SortingDemo/simulation.sh stats
+```
+
+只暂停派单：
+
+```bash
+SortingDemo/simulation.sh stop
+```
+
+这会停止新增作业，已提交任务仍由 Kernel 和模拟器执行。再次 `start` 从派单检查点核对现有任务，不重复创建订单。
+
+`status` 还会显示每辆车的 `mqttBroker=true` 和 `vehicleConnection=ONLINE`，可分别判断 Kernel 到 Broker 及车辆端连接状态。
+
+计划停止整个仿真时，先回库：
+
+```bash
+SortingDemo/simulation.sh drain
+# 等待 simulation.log 出现 DRAINED，表示全部车辆回到各自 init_N
+SortingDemo/simulation.sh stop
+SortingDemo/mqtt-vehicles.sh stop
+```
+
+回库完成后再次 `simulation.sh start` 会清除回库请求，恢复正常分拣。
+
+模拟器在 MQTT 断线时冻结运动，重连后重新订阅并上报当前状态。正常 `stop` 保存每辆车的待执行路段、动作进度、位置、电量及载货状态；在 Kernel 未重置的情况下可用 `start` 恢复。不要删除模拟器检查点后继续旧 Kernel 的订单，否则车辆位置会不一致。强制杀进程/断电可能丢失最后一次检查点后的进度，这不是生产级故障恢复协议。
+
+Kernel 重启后必须确认原运输任务是否仍存在。若任务历史已丢失，旧派单器会拒绝续跑，应在无未完成任务时重新 `setup`；不能只保留车辆检查点而假定调度任务可恢复。
+
+## 车辆标识和 MQTT topic
+
+地图转换脚本自动为所有车辆写入配置，不需要手动填写 25 次：
+
+| 配置 | 值 |
+| --- | --- |
+| 协议版本 | `2.0`，消息 header 为 `2.0.0` |
+| interfaceName | `uagv` |
+| manufacturer | `SortingDemo` |
+| serialNumber | `Sorting-AGV-01` 至 `Sorting-AGV-25` |
+| mapId | `Sorting` |
+| MQTT Client ID | `sorting-sim-Sorting-AGV-01` 至 `sorting-sim-Sorting-AGV-25` |
+| 初始点 | `init_1` 至 `init_25` |
+| 最大 base 步数 / horizon 步数 | `1` / `0` |
+
+例如第一辆车：
+
+```text
+uagv/v2/SortingDemo/Sorting-AGV-01/order
+uagv/v2/SortingDemo/Sorting-AGV-01/instantActions
+uagv/v2/SortingDemo/Sorting-AGV-01/state
+uagv/v2/SortingDemo/Sorting-AGV-01/connection
+```
+
+模拟器只执行 `released=true` 的节点和边；路段是否获准仍由 openTCS Scheduler 决定。重复 `orderId/orderUpdateId` 幂等处理，订单更新只能在旧 base 末端追加。断线遗嘱为 `CONNECTIONBROKEN`，正常退出发布 `OFFLINE`，连接成功发布 `ONLINE`；状态每秒更新，收到命令也会立即反馈。
+
+## 分拣行为
+
+地图由 `Sorting.building.yaml` 生成，包含 253 个导航点、425 条路径、34 个下料位置、3 个上料位置、25 个充电位置和 25 辆车。`droppff_1` 至 `droppff_12` 保留原地图拼写。
+
+每台车独立运行：选择上料位置 → 按顺序经过四个等待点 → `Load cargo` → 随机下料点 `Unload cargo` → 继续上料或低电量回库 `CHARGE`。上料选择依据预计行驶时间和排队代价；34 个下料点等概率随机，随机种子和选定目标保存在检查点。
 
 | 上料位 | 队尾到上料位 |
 | --- | --- |
@@ -20,116 +130,32 @@
 | pickup_2 | waite_8 → waite_7 → waite_6 → waite_5 → pickup_2 |
 | pickup_3 | waite_12 → waite_11 → waite_10 → waite_9 → pickup_3 |
 
-这不是提前独占整条送货路线，也不是未来时刻的通行时间表。原生资源互斥不等于全局死锁规避。车辆超过 5 秒没有路线进展且处于 IDLE 等资源状态时，脚本用订单的 `tcs:resourcesToAvoid` 属性避开其他车辆当前点位，并调用 Dispatcher 的 `REGULAR` 重规划；同一车辆两次重规划至少间隔 10 秒。必经上料、等待和目标点，以及车辆自身已获分配的前方资源不会被排除，避免将常规重规划的起点从路由图中移除。因占用快照变化导致找不到路径时恢复原避让属性，留待下一次尝试，不停止全车队派单。重规划保留已执行/已分配路线前缀，资源仍由 Scheduler 控制，不撤单、不跳点。若没有可行绕行，车辆继续等待；超过 60 秒输出 `WAITING`，应检查占用和地图拥堵。暂停一台车可能通过道路占用影响相邻车辆，但不会触发脚本层面的全车队屏障。
+保留原有 Scheduler 资源互斥和等待时的 `REGULAR` 重规划策略；不会为了展示运动直接跳到目标点，也不绕过路段分配。默认平移速度上限 1.8 m/s，平移加减速度 1 m/s²；节点转向采用静止起止的角速度曲线耗时，旋转限制从 `simulation.properties` 读取。装卸货默认 1 秒。
 
-## 随机目标、电量和统计
+支持的节点动作：`Load cargo`、`Unload cargo`、`CHARGE`、`NOP`。支持的 instant action：`stateRequest`、`startPause`、`stopPause`、`cancelOrder`。这是分拣联调模拟器，未实现 factsheet、复杂边动作、障碍感知、任意车辆动作或完整物理动力学，不能当作 VDA5050 一致性认证工具。
 
-每次分拣从全部 34 个下料点等概率随机选择，允许连续重复。随机种子、已选目标和当前订单名称保存在检查点，重启及创建订单重试不改变该包裹目标；`setup` 开始新仿真时生成新种子。
+电量由车辆模拟器按已走完路段扣除，每米 0.01 个百分点；等待和装卸不耗电。派单器从 Kernel 接收 MQTT 电量反馈，完成已装载货物的投递后，电量不高于 20% 时前往自己的充电位。默认充电每秒 1 个百分点，充满后恢复工作。配置均位于 `simulation.properties`，修改后重启模拟器；电量策略变更建议在回库后重新初始化。
 
-车辆最大前进/倒车速度均为 1.8 m/s，加速度 1.0 m/s²，减速度属性为 -1000 mm/s²。车身运行尺寸为 500 × 500 × 400 mm，Loopback 的空载及载货长度均配置为 500 mm。道路未指定单独限速时使用 1.8 m/s，地图方向保持 YAML 设置。正常仿真时间倍率为 1。
+只有 Kernel 确认 `FINISHED` 的下料任务才计为一次分拣，小时统计包括等待和充电时间。`runtime/hourly.csv` 时间为 UTC；未满一小时的估算不等于实测产能。此前 Loopback 结果不代表当前 MQTT 仿真性能。
 
-每行驶 1 米消耗 0.01 个百分点。耗电依据 Kernel 的已执行路线步骤和实际路径长度累计，不根据两次轮询位置之间的直线距离估算；已扣除距离随检查点保存，重启不重复扣电。当前位置尚未反馈的一段路程在下一次确认时计入。等待和装卸不耗电。
+## 文件与验证
 
-20% 阈值在接下一次上料任务之前判断。已经接下的上料、送货任务完成落料后再充电；充电期间其他车辆独立工作。充电速度由 Kernel 的 `virtualvehicle.rechargePercentagePerSecond=1.0` 控制，充满 100% 恢复工作。Kernel 停止普通派单的临界阈值由脚本设为 0%，20% 返充策略由脚本负责。
-
-只有成功完成的送货 UNLOAD 算一次分拣，依据订单实际完成时间计入小时窗口。统计包括等待和充电时间，暂停脚本期间的真实时间也计入。`runtime/hourly.csv` 包含每小时总数、各车数量和充电次数；`COMPLETE` 才是完整小时结果，`IN_PROGRESS` 和 `estimated_sorts_per_hour` 不能当成一小时实测值。CSV 时间为 UTC，北京时间加 8 小时。
-
-## 使用
-
-在项目根目录运行，需要 Python 3、PyYAML、JDK、本仓库已构建的发行目录，以及本机运行中的 Kernel：
-
-```sh
-python3 SortingDemo/convert_sorting.py
-SortingDemo/simulation.sh check
-SortingDemo/simulation.sh setup
-SortingDemo/simulation.sh start
-SortingDemo/simulation.sh status
-SortingDemo/simulation.sh stats
-SortingDemo/simulation.sh stop
-```
-
-旧版逐步调度检查点不能直接续跑，迁移到原生 Scheduler 需要 `setup`。此命令备份旧模型、检查点和小时 CSV，重置 24 台车辆及计数；有未完成任务时拒绝重置。
-
-`stop` 只停止生成新任务，已经提交的完整上料/送货/充电任务仍可继续执行。再次 `start` 核对当前订单并恢复计数，不重复提交已经存在的订单。不要在暂停期间删除历史任务、手工派单、重新定位或重新规划当前任务路线，否则检查点和实际执行记录可能不一致。脚本不会自动修复失败任务或重置车辆。
-
-`SortingDemo/simulation.sh measure` 从运行中的下一次轮询重新开始小时测量，不重置车辆累计数量。需要旧测量结果时请先保存 CSV。修改 `simulation.properties` 中电量参数后，需要 `setup` 开始新仿真。
-
-## 文件和验证
-
-- `SortingSimulation.java`：完整作业派单、Kernel 路线进度耗电、检查点和统计。
-- `SortingTraffic.java`：地图解析及稳定随机目标选择；保留的旧时间步规划器不参与当前运行。
-- `SortingMetrics.java`：真实小时窗口和 CSV。
-- `SortingSchedulerTest.java`：作业粒度、执行距离、独立车辆状态、低电量策略及检查点恢复。
-- `SortingTrafficTest.java`：地图全目标路线及随机选择检查；`check` 仅运行路线检查，不再运行旧时间步规划器的长时模拟。
+- `SortingMqttVehicle.java`：基于自带示例的车辆状态机、VDA5050 消息、运动/动作和电量。
+- `SortingMqttFleet.java`：25 个 MQTT 客户端、Broker 配置、断线重连及车辆检查点。
+- `mqtt-vehicles.sh`：模拟车队启动、停止和检查。
+- `SortingSimulation.java` / `simulation.sh`：Kernel 任务生成、动态上料选择、统计及恢复。
+- `SortingMqttTest.java`：未释放 horizon、重复订单、base 拼接、装卸、暂停、充电、取消及运动中检查点恢复。
+- `runtime/mqtt-vehicles.log`：`ONLINE`、`ORDER`、协议或连接错误。
+- `runtime/mqtt-vehicles/`：各车检查点。
 - `runtime/simulation.log`：`SUBMIT`、`FINISHED`、`RECHARGED`、`REROUTE`、`WAITING`。
-- `runtime/traffic-state.properties`：原生 Scheduler 模式检查点。
-- `runtime/before-native-scheduler/`：切换前的逐步调度源码和说明。
 
-旧地图、旧逐步调度的小时结果不能代表当前原生 Scheduler 的吞吐量。
+验证命令：
 
-本机 Kernel 验证：24 台车均完成分拣；发现并通过常规重规划恢复了一次循环等待，未撤销订单或重置车辆。检查到单个送货订单含多段道路，3 秒采样内释放 111 项资源；核对的 80 次已确认落料与 Kernel 完成订单一致。停止/续跑及后续分拣通过。此为短时功能验证，不代表完整一小时产能或任意地图无死锁保证。详见 `runtime/native-scheduler-verification.txt`。
-
-## 旋转仿真
-
-已扩展 `opentcs-commadapter-loopback`，SortingDemo 默认启用；其他地图未设置 `loopback:rotationEnabled=true` 时不增加转向等待。
-
-| simulation.properties 配置 | 默认值 | XML 车辆属性 |
-| --- | --- | --- |
-| `rotation.enabled` | true | `loopback:rotationEnabled` |
-| `rotation.maxVelocityDegPerSec` | 90°/s | `loopback:maxAngularVelocity` |
-| `rotation.maxAccelerationDegPerSec2` | 180°/s² | `loopback:maxAngularAcceleration` |
-| `rotation.maxDecelerationDegPerSec2` | 180°/s² | `loopback:maxAngularDeceleration` |
-
-三个角运动限制均为正数，角减速度填写正的减速度大小，与直线 `loopback:deceleration=-1000` 的符号约定不同。修改配置后运行转换脚本重新生成 XML，并重新载入模型/创建适配器；运行中的适配器不热更新这些参数。
-
-每段道路开始之前，根据源点和目标点的连线计算方向。倒车时车头方向与移动方向相反；从当前朝向选择最短旋转角，180° 的并列情况固定顺时针转向。直行不增加旋转等待。初始朝向未知时，对齐第一段道路，不假定车辆面向 0°；之后持续保留和更新朝向，包括上下料和等待期间。
-
-旋转采用静止起步、静止结束的三角形/梯形角速度曲线，短转角可能达不到最大角速度。默认参数下，90° 转向为 1.5 秒，180° 掉头为 2.5 秒；执行以 100 ms 仿真步更新并受时间倍率影响，时间可能向上取整一个仿真步。暂停冻结旋转进度，恢复后继续。
-
-转向期间车辆位置保持在源点，不发送下一段的完成反馈，不提前报告到达目标点。Scheduler 保留源点和已分配道路资源，转完后才开始行驶，行驶完成后按原生机制释放资源。该逻辑使用点/道路资源，不新增车身旋转扫掠区域的几何碰撞模型。直线模型也未增加沿路提前制动的物理模型；在节点转向时将平移速度置零。
-
-旋转耗时自然计入一小时分拣统计；当前电量模型仍只按行驶距离耗电，旋转本身未单独扣电。`simulation.sh status` 显示旋转参数、`rotating` 和当前 `angularVelocity`。
-
-升级适配器需要重新构建并重启 Kernel。对应构建命令为：
-
-```sh
-./gradlew :opentcs-commadapter-loopback:test :opentcs-commadapter-loopback:jar
+```bash
+SortingDemo/mqtt-vehicles.sh check
+SortingDemo/simulation.sh check
+# Kernel 和车队运行时，核对 25 个 MQTT 实时状态与 Kernel 中的车辆
+SortingDemo/mqtt-vehicles.sh verify
 ```
 
-发布时应同步更新 Kernel、Kernel Control Center 和 Operations Desk 的 Loopback JAR，并重启使用旧类的进程。本次本机发行目录中的三份 JAR 均已更新，旧地图、检查点、统计和 JAR 保存在 `runtime/before-rotation-*`。
-
-`simulation.sh drain` 可请求正在运行的调度器停止接新包裹，完成已接任务并回到各自停车位，待日志出现 `DRAINED` 后进行维护。该回停车位只用于维护，不改变正常运行时低电量才返充的策略；维护停车不计分拣或充电。迁移后执行 `setup` 清除维护标记并开始新一轮。
-
-初次旋转扩展验证（旧角加减速度 180°/s²）：模块 17 项测试通过，格式检查及 Checkstyle 检查通过（无错误）；本机 24 台适配器均确认启用 90/180/180 参数。20 秒实机采样中，15 台车提供了 126 个旋转样本，每个样本均保持点位及相关道路资源占用，同时朝向发生变化。记录见 `runtime/rotation-verification.txt`。升级时原 Kernel 已停止，因此旧记录已备份，新仿真从新检查点开始；没有把旧未完成任务计为已完成分拣。
-
-## 连续行驶坐标
-
-Loopback 每 100 ms 按速度控制器的已行驶距离与道路长度之比，在源点和目标点之间插值更新 `Pose.position`（包含 X/Y/Z，毫米精度），保留当前朝向。暂停或坐标未变化时不重复发布位姿事件；到达时精确对齐目标坐标。该功能使用直线几何插值，适用于当前分拣地图，不模拟曲线道路形状。
-
-中间坐标不更新逻辑顶点、不确认命令完成；Scheduler 仍在实际到达后的执行反馈中释放相关道路资源。加减速、旋转、耗电和分拣计数沿用现有模型。24 台车同时移动时，平移最多约每秒 240 次位姿更新；此数值是事件频率上界，不是 CPU 性能测量。
-
-Operations Desk 使用精确坐标显示车辆；菜单中的“忽略精确位置”（Ignore precise position）应保持未勾选，发行配置默认已关闭此选项。
-
-连续坐标升级验证：19 项适配器测试、格式检查及 Checkstyle 检查通过（Checkstyle 无错误，保留现有警告），分拣路由与调度检查通过。运行中的 24 台车运动/尺寸参数核对通过；短时采样取得 4 台车的 250 个中间坐标变化样本，所有样本都保留逻辑源点资源。详见 `runtime/continuous-pose-verification.txt`。升级前任务全部完成并停靠，115 次已完成分拣及检查点已备份到 `runtime/before-continuous-pose-*`；升级后从新一轮统计开始。未进行额外 CPU 开销对比测量。
-
-上一轮地图更新：294 个导航点、465 条道路、42 个下料点，24 × 42 条作业路线及随机目标/调度检查通过。旧地图仿真曾出现全车等待资源，未能正常维护停靠；检查点和小时统计已保存于 `runtime/map-update-*`，切换新地图后从新一轮计数开始，旧未完成任务未计为分拣完成。
-
-上一轮地图更新：288 个导航点、459 条道路、36 个下料点，移除下料点 35、36、37、40、41、42；24 × 36 条路线及随机目标/调度检查通过。旧仿真维护停靠期间出现全车资源等待，125 次已完成分拣及检查点已备份到 `runtime/map-update-*`，新地图已重新启动 24 台车辆并单独统计。
-
-上一轮地图更新：252 个导航点、423 条道路、34 个下料点；24 × 34 条路线及随机目标/调度检查通过。更新时 Kernel 已停止，旧检查点和统计已备份到 `runtime/map-update-*`。新地图重新启动 24 台车，保留车辆参数并单独计数；连续坐标及资源占用采样见备份目录 `pose-verification.txt`。
-
-2026-09-15 参数更新：直线加速度 1000 mm/s²、减速度 -1000 mm/s²，角加速度和角减速度均为 180°/s²；最大线速度 1800 mm/s、最大角速度 90°/s，其余参数沿用。24 台运行适配器的运动与车身参数核对通过，连续坐标/资源占用采样通过。更新时 Kernel 已停止，旧检查点及统计保存在 `runtime/before-acceleration-*`，新仿真单独计数。
-
-最新地图更新：253 个导航点、424 条道路、34 个下料点、25 个充电位。新增 `init_25` 作为备用，24 台车仍按现有策略返回各自充电位。24 × 34 作业路线和备用充电位往返可达性检查通过。旧仿真正常完成维护停靠，775 次分拣及统计已备份到 `runtime/map-update-*`，新地图单独计数。
-
-后续地图更新：调整 pickup_2、pickup_3 位置及相关道路，仍为 253 个导航点、424 条道路、34 个下料点、25 个充电位。路线检查通过，24 台车正常停靠后载入新地图，旧轮次 97 次分拣及检查点已备份到 `runtime/map-update-*`，新轮次独立计数。
-
-## 动态上料选择（仅选择，不限流）
-
-新上料任务按 `预计行驶秒数 + 队列车辆数 × pickup.queuePenaltySeconds` 评分，选择可达且评分最低的上料位。默认排队权重为每车 8 秒；在 `simulation.properties` 修改后重启分拣脚本生效。距离来自有向道路长度，并结合道路/车辆限速、加减速换算时间；从当前逻辑点依次估算到四个等待点和上料位的成本。每段路按静止起步、静止结束估算，不包含精确旋转耗时或未来交通变化，且实际路线仍由 Kernel Router 计算，因此此分值不是准确 ETA。
-
-队列包括已分配到该区的在途/等待/上料任务，以及仍处于四个等待点或上料点的其他车辆；同一车辆只计一次，排除自身。同一轮每次确定选择后，立即更新并保存任务意图，下一台车据此评分。缓存静态道路成本，避免反复搜索全图。
-
-不限制每个区的准入数量，不创建 `STANDBY` 或满区返停车位任务。车辆按原有规则持续接上料/送货任务，低电量才按充电策略返充。已接上料任务保持既定目的地；新任务才重新选择。选择结果保存在检查点中，重启不重选，旧固定分组的未完成任务按原分组恢复。此功能不提供死锁保证，实际产能需运行对比。
-
-`status` 显示每区 `queuedOrPresent`；日志 `PICKUP_SELECT` 包含所选上料位、道路距离（米）、预计行驶秒数、排队数及总评分。检查命令覆盖距离与队列选择、超过 4 台仍继续派单、不生成停车任务、队列去重、重启与旧任务兼容，以及所有下料点/停车位到三个上料区的可达性。
+`deploy-server/deploy-map/Sorting.xml` 已同步为当前包含 `init_25` 的分拣地图，与 `SortingDemo/Sorting.xml` 一致。之前部署目录中不含 `init_25` 的旧图已备份到 `runtime/before-25-vehicles-1789464240/deployment-Sorting.xml`。

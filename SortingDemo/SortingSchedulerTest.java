@@ -7,6 +7,13 @@ class SortingSchedulerTest {
   static void require(boolean b, String m) { if (!b) throw new AssertionError(m); }
   public static void main(String[] args) throws Exception {
     var a = new Point("a"); var b = new Point("b"); var c = new Point("c");
+    var startingVehicle = new Vehicle("starting").withState(Vehicle.State.IDLE)
+        .withIntegrationLevel(Vehicle.IntegrationLevel.TO_BE_UTILIZED);
+    require(!SortingSimulation.readyForOrder(startingVehicle), "Startup must wait for the first MQTT position");
+    require(SortingSimulation.readyForOrder(startingVehicle.withCurrentPosition(a.getReference())),
+        "Located idle vehicle should become ready");
+    require(!SortingSimulation.readyForOrder(startingVehicle.withCurrentPosition(a.getReference()).withPaused(true)),
+        "Startup must respect paused vehicles");
     var ab = new org.opentcs.data.model.Path("ab", a.getReference(), b.getReference()).withLength(1000);
     var bc = new org.opentcs.data.model.Path("bc", b.getReference(), c.getReference()).withLength(3000);
     var route = new Route(List.of(new Route.Step(ab, a, b, Vehicle.Orientation.FORWARD, 0, 1),
@@ -31,8 +38,6 @@ class SortingSchedulerTest {
     s.submitted[1] = true;
     var recovered = SortingSimulation.decode(SortingSimulation.encode(s), s.fingerprint);
     require(recovered.submitted[1] && recovered.active[1].equals(name) && recovered.target[1].equals(target), "Intent not persistent");
-    SortingSimulation.account(s, 1, 3000); SortingSimulation.account(s, 1, 3000);
-    require(Math.abs(s.energy[1] - (100 - 3 * SortingSimulation.CONSUMPTION)) < 1e-6, "Distance charged twice");
     SortingSimulation.finish(s, 1, 2000);
     require(s.loaded[1] && s.completed[1] == 0, "Pickup counted as sort");
     s.energy[1] = 19;
@@ -53,9 +58,13 @@ class SortingSchedulerTest {
     recovered = SortingSimulation.decode(SortingSimulation.encode(s), s.fingerprint);
     require(recovered.metrics.csv(5000).equals(s.metrics.csv(5000)), "Lost metrics on restart");
     require(recovered.sequence[1] == s.sequence[1] && recovered.randomSeed == s.randomSeed, "Lost sequence or seed");
+    var changedFleet = SortingSimulation.encode(s);
+    changedFleet.setProperty("fleet.size", Integer.toString(SortingSimulation.VEHICLES - 1));
+    try { SortingSimulation.decode(changedFleet, s.fingerprint); throw new AssertionError("Wrong fleet size accepted"); }
+    catch (IllegalStateException expected) { }
     var old = SortingSimulation.encode(s); old.setProperty("version", "battery-sorting-v5-random");
     try { SortingSimulation.decode(old, s.fingerprint); throw new AssertionError("Old checkpoint accepted"); }
     catch (IllegalStateException expected) { }
-    System.out.println("PASS: native Scheduler order granularity; independent vehicles; intent/seed/counters persistence; cargo-before-charge; distance idempotency; migration guard");
+    System.out.println("PASS: native Scheduler order granularity; independent vehicles; intent/seed/counters persistence; cargo-before-charge; migration guard");
   }
 }

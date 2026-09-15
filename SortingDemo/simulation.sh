@@ -11,6 +11,7 @@ case "${1:-status}" in
       echo 'Simulation generator is already running.'
       exit 0
     fi
+    rm -f SortingDemo/runtime/drain.request
     python3 - <<'START'
 from pathlib import Path
 import subprocess

@@ -36,8 +36,16 @@ class SortingTrafficTest {
     stats.record(stats.startMillis + SortingMetrics.HOUR_MS - 1, 2, false);
     stats.record(stats.startMillis + SortingMetrics.HOUR_MS, 3, false);
     stats.record(stats.startMillis + 5, 1, true);
-    require(Arrays.stream(stats.hours.get(0L), 0, 24).sum() == 2, "Wrong first-hour boundary");
-    require(stats.hours.get(1L)[2] == 1 && stats.hours.get(0L)[24] == 1, "Charge included as sort");
+    require(Arrays.stream(stats.hours.get(0L), 0, SortingSimulation.VEHICLES).sum() == 2, "Wrong first-hour boundary");
+    require(stats.hours.get(1L)[2] == 1 && stats.hours.get(0L)[SortingSimulation.VEHICLES] == 1, "Charge included as sort");
+    var lastVehicleStats = new SortingMetrics(); lastVehicleStats.startMillis = stats.startMillis;
+    lastVehicleStats.record(stats.startMillis, SortingSimulation.VEHICLES, false);
+    lastVehicleStats.record(stats.startMillis, SortingSimulation.VEHICLES, true);
+    require(lastVehicleStats.hours.get(0L)[SortingSimulation.VEHICLES - 1] == 1
+        && lastVehicleStats.hours.get(0L)[SortingSimulation.VEHICLES] == 1,
+        "Last vehicle overlaps the charge counter");
+    require(lastVehicleStats.csv(stats.startMillis + 100).split("\n")[0].endsWith(",vehicle_" + SortingSimulation.VEHICLES),
+        "Last vehicle missing from CSV");
     var props = new Properties(); stats.save(props); var restored = SortingMetrics.load(props);
     require(restored.csv(stats.startMillis + 100).equals(stats.csv(stats.startMillis + 100)), "Counters changed after checkpoint");
     require(stats.csv(stats.startMillis + SortingMetrics.HOUR_MS).contains("FINALIZING"), "Unacknowledged hour reported complete");
@@ -50,7 +58,7 @@ class SortingTrafficTest {
     long started = System.nanoTime(); var traffic = new SortingTraffic(new File("SortingDemo/Sorting.xml"));
     require(!SortingTraffic.compatible("A", "B", Set.of("A"), Map.of("B", "A")), "Swap allowed");
     require(!SortingTraffic.compatible("A", "B", Set.of("C", "D", "A"), Map.of("B", "C", "C", "D", "D", "A")), "Circular wait allowed");
-    for (int vehicle = 1; vehicle <= 24; vehicle++) for (int cycle = 1; cycle <= traffic.dropoffs.size(); cycle++) {
+    for (int vehicle = 1; vehicle <= SortingSimulation.VEHICLES; vehicle++) for (int cycle = 1; cycle <= traffic.dropoffs.size(); cycle++) {
       var goals = new ArrayList<>(traffic.goals(vehicle, cycle));
       goals.set(goals.size() - 1, new SortingTraffic.Goal(traffic.dropoffs.get(cycle - 1), "UNLOAD"));
       goals.add(new SortingTraffic.Goal("init_" + vehicle, "CHARGE"));
@@ -60,7 +68,7 @@ class SortingTrafficTest {
     var different = new SortingTraffic(new File("SortingDemo/Sorting.xml"), traffic.randomSeed + 1);
     int repeats = 0, changes = 0;
     var counts = new HashMap<String, Integer>();
-    for (int vehicle = 1; vehicle <= 24; vehicle++) {
+    for (int vehicle = 1; vehicle <= SortingSimulation.VEHICLES; vehicle++) {
       String previous = null;
       for (int cycle = 1; cycle <= 1000; cycle++) {
         String target = traffic.destination(vehicle, cycle);
@@ -74,18 +82,18 @@ class SortingTrafficTest {
     }
     require(counts.size() == traffic.dropoffs.size(), "Random sample missed a destination");
     require(repeats > 0 && changes > 0, "Selection still follows a fixed rotation");
-    double expected = 24000.0 / traffic.dropoffs.size();
+    double expected = SortingSimulation.VEHICLES * 1000.0 / traffic.dropoffs.size();
     require(counts.values().stream().allMatch(n -> n > expected * .5 && n < expected * 1.5), "Strong destination bias");
-    System.out.println("PASS: 24 x " + traffic.dropoffs.size() + " directed routes and queue order");
-    System.out.println("PASS: 24000 random destinations; all targets sampled; retries/restarts stable; new seed changes results; consecutive repeats allowed");
+    System.out.println("PASS: " + SortingSimulation.VEHICLES + " x " + traffic.dropoffs.size() + " directed routes and queue order");
+    System.out.println("PASS: " + (SortingSimulation.VEHICLES * 1000) + " random destinations; all targets sampled; retries/restarts stable; new seed changes results; consecutive repeats allowed");
     if (Arrays.asList(args).contains("--routes-only")) { metrics(); return; }
     var plans = new TreeMap<Integer, SortingTraffic.Plan>();
-    int[] sorted = new int[25], charges = new int[25]; double[] energy = new double[25];
-    boolean[] loaded = new boolean[25], toCharge = new boolean[25]; long[] chargeUntil = new long[25];
+    int[] sorted = new int[SortingSimulation.VEHICLES + 1], charges = new int[SortingSimulation.VEHICLES + 1]; double[] energy = new double[SortingSimulation.VEHICLES + 1];
+    boolean[] loaded = new boolean[SortingSimulation.VEHICLES + 1], toCharge = new boolean[SortingSimulation.VEHICLES + 1]; long[] chargeUntil = new long[SortingSimulation.VEHICLES + 1];
     Arrays.fill(energy, 100); energy[1] = 20; energy[2] = 20.05; energy[3] = 19;
     int peak = 0;
     for (long tick = 0; tick < 4200; tick++) {
-      for (int i = 1; i <= 24; i++) {
+      for (int i = 1; i <= SortingSimulation.VEHICLES; i++) {
         final int number = i;
         if (chargeUntil[i] > 0 && tick >= chargeUntil[i]) { energy[i] = 100; chargeUntil[i] = 0; }
         if (plans.containsKey(i) && energy[i] <= 20 + 1e-8 && !loaded[i] && !toCharge[i]) {
@@ -127,11 +135,11 @@ class SortingTrafficTest {
       long nextTick = tick + 1;
       for (var p : plans.values().stream().filter(p -> p.end() == nextTick).toList()) plans.remove(p.vehicle());
     }
-    require(Arrays.stream(sorted, 1, 25).min().orElse(0) >= 30, "Starved vehicle");
-    require(Arrays.stream(charges, 1, 25).min().orElse(0) >= 1, "Charge branch not covered");
+    require(Arrays.stream(sorted, 1, SortingSimulation.VEHICLES + 1).min().orElse(0) >= 30, "Starved vehicle");
+    require(Arrays.stream(charges, 1, SortingSimulation.VEHICLES + 1).min().orElse(0) >= 1, "Charge branch not covered");
     metrics();
-    System.out.println("PASS: 24 x " + traffic.dropoffs.size() + " directed routes, queue order and conflict checks");
-    System.out.println("PASS: 4200 frames; sorts=" + Arrays.stream(sorted).sum() + "; min/vehicle=" + Arrays.stream(sorted, 1, 25).min().orElse(0)
+    System.out.println("PASS: " + SortingSimulation.VEHICLES + " x " + traffic.dropoffs.size() + " directed routes, queue order and conflict checks");
+    System.out.println("PASS: 4200 frames; sorts=" + Arrays.stream(sorted).sum() + "; min/vehicle=" + Arrays.stream(sorted, 1, SortingSimulation.VEHICLES + 1).min().orElse(0)
         + "; charge visits=" + Arrays.stream(charges).sum() + "; peak active=" + peak);
     System.out.println("PASS: 19%, 20%, 20.05% thresholds; cargo completed before charge; charging and sorting coexist");
     System.out.println("PASS: exact hourly boundaries, unload-only counts, persisted counters, partial/full-hour distinction");

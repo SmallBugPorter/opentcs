@@ -13,14 +13,14 @@ import org.opentcs.common.GuestUserCredentials;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.TransportOrder;
 import org.opentcs.util.persistence.ModelParser;
-import org.opentcs.virtualvehicle.LoopbackCommunicationAdapterDescription;
+import org.opentcs.commadapter.vehicle.vda5050.CommAdapterDescriptionImpl;
 
 /** Checkpointed, physically acknowledged continuous sorting with battery and hourly accounting. */
 class SortingSimulation {
-  static final String VERSION = "native-scheduler-v1";
+  static final String VERSION = "mqtt-scheduler-v1";
   static final Path MODEL = Path.of("SortingDemo/Sorting.xml");
   static final Path STATE = Path.of("SortingDemo/runtime/traffic-state.properties");
-  static final int VEHICLES = 24;
+  static final int VEHICLES;
   static final Path HOURLY = Path.of("SortingDemo/runtime/hourly.csv");
   static final Path DRAIN_REQUEST = Path.of("SortingDemo/runtime/drain.request");
   static final Path MEASURE_REQUEST = Path.of("SortingDemo/runtime/start-measurement.request");
@@ -32,6 +32,8 @@ class SortingSimulation {
     try {
       var config = SETTINGS;
       try (var in = Files.newInputStream(Path.of("SortingDemo/simulation.properties"))) { config.load(in); }
+      VEHICLES = Integer.parseInt(config.getProperty("fleet.size"));
+      if (VEHICLES < 1 || VEHICLES > 99) throw new IllegalArgumentException("fleet.size must be between 1 and 99");
       CONSUMPTION = Double.parseDouble(config.getProperty("battery.consumptionPercentPerMeter", "0.01"));
       CHARGE_THRESHOLD = Double.parseDouble(config.getProperty("battery.chargeThresholdPercent", "20"));
       RESUME_ENERGY = Double.parseDouble(config.getProperty("battery.resumePercent", "100"));
@@ -39,12 +41,6 @@ class SortingSimulation {
         throw new IllegalArgumentException("Invalid battery parameters");
       }
     } catch (Exception e) { throw new ExceptionInInitializerError(e); }
-  }
-
-  static void publishEnergy(KernelServicePortal portal, Vehicle vehicle, double energy) {
-    portal.getVehicleService().sendCommAdapterMessage(vehicle.getReference(),
-        new org.opentcs.drivers.vehicle.VehicleCommAdapterMessage("tcs:virtualVehicle:setEnergyLevel",
-            Map.of("energyLevel", Integer.toString((int) Math.ceil(energy - 1e-8)))));
   }
 
   static void report(State state) throws Exception {
@@ -74,6 +70,7 @@ class SortingSimulation {
   static Properties encode(State state) {
     var props = new Properties();
     props.setProperty("version", VERSION);
+    props.setProperty("fleet.size", Integer.toString(VEHICLES));
     props.setProperty("battery.config", CONSUMPTION + "," + CHARGE_THRESHOLD + "," + RESUME_ENERGY);
     props.setProperty("model", state.fingerprint);
     props.setProperty("run", state.run);
@@ -106,6 +103,8 @@ class SortingSimulation {
   }
 
   static State decode(Properties props, String model) {
+    if (!Integer.toString(VEHICLES).equals(props.getProperty("fleet.size")))
+      throw new IllegalStateException("Fleet size changed; stop simulators and run setup (old state is backed up)");
     if (!VERSION.equals(props.getProperty("version")) || !model.equals(props.getProperty("model")))
       throw new IllegalStateException("Checkpoint/model differs; run setup to migrate to native Scheduler");
     if (!(CONSUMPTION + "," + CHARGE_THRESHOLD + "," + RESUME_ENERGY).equals(props.getProperty("battery.config")))
@@ -174,12 +173,6 @@ class SortingSimulation {
     return result;
   }
 
-  static void account(State s, int i, long distance) {
-    if (distance < s.accounted[i]) throw new IllegalStateException("Route changed after execution; stop and reconcile odometry");
-    s.energy[i] = Math.max(0, Math.round((s.energy[i] - (distance - s.accounted[i]) / 1000.0 * CONSUMPTION) * 1e6) / 1e6);
-    s.accounted[i] = distance;
-  }
-
   static void finish(State s, int i, long timestamp) {
     switch (s.stage[i]) {
       case "PARK" -> { /* Maintenance-only parking, not a sort or a charge. */ }
@@ -200,7 +193,7 @@ class SortingSimulation {
       result.put(Integer.parseInt(vehicle.getName().substring("Sorting-AGV-".length())), vehicle);
     }
     if (result.size() != VEHICLES || result.firstKey() != 1 || result.lastKey() != VEHICLES) {
-      throw new IllegalStateException("Expected all 24 Sorting vehicles");
+      throw new IllegalStateException("Expected all " + VEHICLES + " Sorting vehicles");
     }
     return result;
   }
@@ -242,6 +235,12 @@ class SortingSimulation {
     System.out.println(Instant.now() + " REROUTE " + v.getName() + " avoiding occupied points=" + avoid.size());
   }
 
+  static boolean readyForOrder(Vehicle vehicle) {
+    return !vehicle.isPaused() && vehicle.getState() == Vehicle.State.IDLE
+        && vehicle.getCurrentPosition() != null
+        && vehicle.getIntegrationLevel() == Vehicle.IntegrationLevel.TO_BE_UTILIZED;
+  }
+
   static void run(KernelServicePortal portal) throws Exception {
     var s = load(); var traffic = new SortingTraffic(MODEL.toFile(), s.randomSeed);
     var pickupSelector = new SortingPickup(MODEL, SETTINGS);
@@ -249,11 +248,33 @@ class SortingSimulation {
     for (var order : portal.getTransportOrderService().fetch(TransportOrder.class))
       if (!order.getState().isFinalState() && !owned.contains(order.getName()))
         throw new IllegalStateException("Foreign unfinished order: " + order.getName());
-    for (var v : fleet(portal).values()) portal.getVehicleService().updateVehicleEnergyLevelThresholdSet(
-        v.getReference(), v.getEnergyLevelThresholdSet().withEnergyLevelCritical(0));
+    // A Kernel restart restores the map but may leave its communication adapters disabled.
+    // Validate the whole fleet/checkpoint before enabling vehicles to resume processing.
+    var startupFleet = fleet(portal);
+    for (var entry : startupFleet.entrySet()) {
+      int i = entry.getKey(); var v = entry.getValue();
+      if (!(portal.getVehicleService().fetchProcessModel(v.getReference())
+          instanceof org.opentcs.commadapter.vehicle.vda5050.v2_0.controlcenter.ProcessModelImplTO))
+        throw new IllegalStateException(v.getName() + " needs a VDA5050 2.0 adapter; check the map/setup");
+      if (s.active[i] != null && s.submitted[i]
+          && portal.getTransportOrderService().fetch(TransportOrder.class, s.active[i]).isEmpty())
+        throw new IllegalStateException("Submitted order missing from Kernel: " + s.active[i] + "; reconcile state or run setup");
+    }
+    int restoredDrivers = 0;
+    for (var v : startupFleet.values()) {
+      portal.getVehicleService().updateVehicleEnergyLevelThresholdSet(
+          v.getReference(), v.getEnergyLevelThresholdSet().withEnergyLevelCritical(0));
+      if (!portal.getVehicleService().fetchProcessModel(v.getReference()).isCommAdapterEnabled()) {
+        portal.getVehicleService().enableCommAdapter(v.getReference());
+        portal.getVehicleService().updateVehicleIntegrationLevel(v.getReference(), Vehicle.IntegrationLevel.TO_BE_UTILIZED);
+        restoredDrivers++;
+      }
+    }
+    System.out.println(Instant.now() + " STARTUP restoredDrivers=" + restoredDrivers
+        + "; waiting for MQTT vehicle states before dispatching");
     long lastReport = 0;
-    var lastReroute = new long[25];
-    var lastProgress = new long[25]; Arrays.fill(lastProgress, System.currentTimeMillis());
+    var lastReroute = new long[VEHICLES + 1];
+    var lastProgress = new long[VEHICLES + 1]; Arrays.fill(lastProgress, System.currentTimeMillis());
     while (true) {
       if (!portal.getPlantModelService().getModelName().equals("Sorting")) throw new IllegalStateException("Kernel model changed");
       long pollStarted = System.currentTimeMillis();
@@ -265,16 +286,15 @@ class SortingSimulation {
       var snapshot = fleet(portal);
       for (var entry : snapshot.entrySet()) {
         int i = entry.getKey(); var v = entry.getValue();
+        s.energy[i] = v.getEnergyLevel(); // Vehicle battery feedback arrives exclusively through MQTT.
         if (s.charging[i]) {
-          s.energy[i] = v.getEnergyLevel();
           if (s.energy[i] >= RESUME_ENERGY && v.getState() == Vehicle.State.IDLE) {
             s.charging[i] = false; save(s);
             System.out.println(Instant.now() + " RECHARGED " + v.getName());
           } else continue;
         }
         if (s.active[i] == null) {
-          if (v.isPaused() || v.getState() != Vehicle.State.IDLE
-              || v.getIntegrationLevel() != Vehicle.IntegrationLevel.TO_BE_UTILIZED) continue;
+          if (!readyForOrder(v)) continue;
           if (Files.exists(DRAIN_REQUEST) && !s.loaded[i]) {
             if (v.getCurrentPosition() != null && v.getCurrentPosition().getName().equals("init_" + i)) continue;
             prepare(s, i, traffic); s.stage[i] = "PARK";
@@ -294,7 +314,6 @@ class SortingSimulation {
         var order = portal.getTransportOrderService().fetch(TransportOrder.class, s.active[i]).orElse(null);
         if (order == null) {
           if (s.submitted[i]) throw new IllegalStateException("Submitted order missing from Kernel: " + s.active[i] + "; restore Kernel state or run setup");
-          publishEnergy(portal, v, s.energy[i]);
           portal.getTransportOrderService().createTransportOrder(new TransportOrderCreationTO(s.active[i], destinations(s, i))
               .withIntendedVehicleName(v.getName()).withProperty("sorting:strategy", VERSION)
               .withProperty("sorting:pickup", Integer.toString(s.pickup[i])).withProperty("sorting:stage", s.stage[i]).withProperty("sorting:cycle", "" + (s.completed[i] + 1)));
@@ -308,15 +327,14 @@ class SortingSimulation {
         if (order.getState().isFinalState() && order.getState() != TransportOrder.State.FINISHED)
           throw new IllegalStateException("Order failed: " + order.getName() + " " + order.getState());
         long distance = travelled(order);
-        if (distance != s.accounted[i]) { account(s, i, distance); save(s); lastProgress[i] = pollStarted; }
+        if (distance != s.accounted[i]) { s.accounted[i] = distance; save(s); lastProgress[i] = pollStarted; }
         if (order.getState() == TransportOrder.State.FINISHED) {
           String stage = s.stage[i];
           finish(s, i, order.getFinishedTime().toEpochMilli()); save(s);
           System.out.println(Instant.now() + " FINISHED " + v.getName() + " " + stage + " sorts=" + s.completed[i] + " energy=" + s.energy[i]);
           lastProgress[i] = pollStarted;
         }
-        // Never overwrite Loopback's autonomously increasing charge level.
-        if (!s.charging[i] && v.getState() != Vehicle.State.CHARGING) publishEnergy(portal, v, s.energy[i]);
+
         if (pollStarted - lastProgress[i] > 5000 && pollStarted - lastReroute[i] > 10000) {
           rerouteWaiting(portal, s, i, v); lastReroute[i] = pollStarted;
         }
@@ -366,6 +384,12 @@ class SortingSimulation {
       var vehicles = portal.getVehicleService();
       var orders = portal.getTransportOrderService();
       if (mode.equals("setup")) {
+        Path generatorPid = Path.of("SortingDemo/runtime/simulation.pid");
+        if (Files.exists(generatorPid) && ProcessHandle.of(Long.parseLong(Files.readString(generatorPid).trim())).map(ProcessHandle::isAlive).orElse(false))
+          throw new IllegalStateException("Stop simulation.sh before setup");
+        Path fleetPid = Path.of("SortingDemo/runtime/mqtt-vehicles.pid");
+        if (Files.exists(fleetPid) && ProcessHandle.of(Long.parseLong(Files.readString(fleetPid).trim())).map(ProcessHandle::isAlive).orElse(false))
+          throw new IllegalStateException("setup resets the model/state: stop mqtt-vehicles.sh first. For normal startup, skip setup and use simulation.sh start.");
         if (orders.fetch(TransportOrder.class).stream().anyMatch(o -> !o.getState().isFinalState())) {
           throw new IllegalStateException("Unfinished orders exist; finish them before replacing the model");
         }
@@ -375,31 +399,31 @@ class SortingSimulation {
         Files.copy(Path.of("build/install/opentcs/opentcs-kernel/data/model.xml"), backup);
         if (Files.exists(STATE)) Files.copy(STATE, STATE.resolveSibling("traffic-state-" + stamp + ".backup"));
         if (Files.exists(HOURLY)) Files.copy(HOURLY, HOURLY.resolveSibling("hourly-" + stamp + ".csv"));
+        Path mqttState = Path.of("SortingDemo/runtime/mqtt-vehicles");
+        if (Files.exists(mqttState)) Files.move(mqttState, mqttState.resolveSibling("mqtt-vehicles-" + stamp + ".backup"));
         portal.getPlantModelService().createPlantModel(new ModelParser().readModel(MODEL.toFile()));
         for (int i = 1; i <= VEHICLES; i++) {
           var vehicle = vehicles.fetch(Vehicle.class, SortingTraffic.name(i)).orElseThrow();
-          vehicles.attachCommAdapter(vehicle.getReference(), new LoopbackCommunicationAdapterDescription());
+          vehicles.attachCommAdapter(vehicle.getReference(), new CommAdapterDescriptionImpl());
           vehicles.enableCommAdapter(vehicle.getReference());
           vehicles.updateVehicleIntegrationLevel(vehicle.getReference(), Vehicle.IntegrationLevel.TO_BE_UTILIZED);
         }
         var state = new State(); state.fingerprint = fingerprint(); save(state); report(state);
         Files.deleteIfExists(MEASURE_REQUEST);
         Files.deleteIfExists(DRAIN_REQUEST);
-        System.out.println("Loaded Sorting and enabled 24 Loopback vehicles. Backup: " + backup);
+        System.out.println("Loaded Sorting and enabled " + VEHICLES + " VDA5050 vehicles. Start mqtt-vehicles.sh to bring them online. Backup: " + backup);
       }
       if (mode.equals("run")) { run(portal); return; }
       System.out.println("Kernel=" + portal.getState() + " model=" + portal.getPlantModelService().getModelName());
       for (var vehicle : vehicles.fetch(Vehicle.class).stream().sorted(Comparator.comparing(Vehicle::getName)).toList()) {
         var adapter = vehicles.fetchProcessModel(vehicle.getReference());
-        if (vehicle.getName().equals("Sorting-AGV-01") && adapter instanceof org.opentcs.virtualvehicle.LoopbackVehicleModelTO loopback) {
-          System.out.println("Rotation enabled=" + loopback.isRotationEnabled() + " max=" + loopback.getMaxAngularVelocity()
-              + "deg/s acceleration=" + loopback.getMaxAngularAcceleration() + "deg/s^2 deceleration=" + loopback.getMaxAngularDeceleration() + "deg/s^2");
-        }
-        String rotation = adapter instanceof org.opentcs.virtualvehicle.LoopbackVehicleModelTO loopback
-            ? " rotating=" + loopback.isRotating() + " angularVelocity=" + loopback.getAngularVelocity() + "deg/s" : "";
+        String mqtt = adapter instanceof org.opentcs.commadapter.vehicle.vda5050.v2_0.controlcenter.ProcessModelImplTO model
+            ? " mqttBroker=" + model.isBrokerConnected() + " vehicleConnection="
+                + (model.getCurrentConnection() == null ? "UNKNOWN" : model.getCurrentConnection().getConnectionState())
+            : " adapter=" + adapter.getClass().getSimpleName();
         System.out.println(vehicle.getName() + " state=" + vehicle.getState() + " position="
             + (vehicle.getCurrentPosition() == null ? "null" : vehicle.getCurrentPosition().getName())
-            + " energy=" + vehicle.getEnergyLevel() + "%" + rotation
+            + " energy=" + vehicle.getEnergyLevel() + "%" + mqtt
             + " allocated=" + vehicle.getAllocatedResources().stream().mapToInt(Set::size).sum()
             + " claimed=" + vehicle.getClaimedResources().stream().mapToInt(Set::size).sum() + " enabled=" + vehicles.fetchProcessModel(vehicle.getReference()).isCommAdapterEnabled());
       }
@@ -407,8 +431,8 @@ class SortingSimulation {
         var state = load();
         System.out.println("Scheduler=native active orders=" + Arrays.stream(state.active).filter(Objects::nonNull).count()
             + " completed sorts=" + Arrays.stream(state.completed).sum()
-            + " vehicles with sorts=" + Arrays.stream(state.completed).filter(c -> c > 0).count() + "/24"
-            + " minimum sorts=" + Arrays.stream(state.completed, 1, 25).min().orElse(0)
+            + " vehicles with sorts=" + Arrays.stream(state.completed).filter(c -> c > 0).count() + "/" + VEHICLES
+            + " minimum sorts=" + Arrays.stream(state.completed, 1, VEHICLES + 1).min().orElse(0)
             + " charges=" + Arrays.stream(state.charges).sum());
         var selector = new SortingPickup(MODEL, SETTINGS);
         var snapshot = fleet(portal);

@@ -26,14 +26,17 @@ def main():
         if '=' in line and not line.lstrip().startswith('#'):
             key, value = line.split('=', 1)
             settings[key.strip()] = value.strip()
+    fleet_size = int(settings['fleet.size'])
+    if not 1 <= fleet_size <= 99:
+        raise ValueError('fleet.size must be between 1 and 99')
     rotation = {
-        'loopback:rotationEnabled': settings.get('rotation.enabled', 'true'),
-        'loopback:maxAngularVelocity': settings.get('rotation.maxVelocityDegPerSec', '90'),
-        'loopback:maxAngularAcceleration': settings.get('rotation.maxAccelerationDegPerSec2', '180'),
-        'loopback:maxAngularDeceleration': settings.get('rotation.maxDecelerationDegPerSec2', '180'),
+        'rotation.enabled': settings.get('rotation.enabled', 'true'),
+        'rotation.maxVelocityDegPerSec': settings.get('rotation.maxVelocityDegPerSec', '90'),
+        'rotation.maxAccelerationDegPerSec2': settings.get('rotation.maxAccelerationDegPerSec2', '180'),
+        'rotation.maxDecelerationDegPerSec2': settings.get('rotation.maxDecelerationDegPerSec2', '180'),
     }
     for key, value in rotation.items():
-        if key != 'loopback:rotationEnabled' and (not math.isfinite(float(value)) or float(value) <= 0):
+        if key != 'rotation.enabled' and (not math.isfinite(float(value)) or float(value) <= 0):
             raise ValueError(f'{key} must be finite and positive')
     data = yaml.safe_load((folder / 'Sorting.building.yaml').read_text())
     if data['coordinate_system'] != 'reference_image' or set(data['levels']) != {'L1'}:
@@ -81,7 +84,9 @@ def main():
                        maxReverseVelocity=velocity if attrs['bidirectional'][1] else 0, locked='false')
         prop(path, 'rmf:laneIndex', n)
         element(path, 'pathLayout', connectionType='DIRECT', layerId=0)
-    for i in range(1, 25):
+    for i in range(1, fleet_size + 1):
+        if f'init_{i}' not in names.values():
+            raise ValueError(f'Missing initial point init_{i}')
         vehicle = element(root, 'vehicle', name=f'Sorting-AGV-{i:02d}',
                           energyLevelCritical=20, energyLevelGood=80,
                           energyLevelFullyRecharged=95, energyLevelSufficientlyRecharged=40,
@@ -89,17 +94,20 @@ def main():
         element(vehicle, 'boundingBox', length=500, width=500, height=400,
                 referenceOffsetX=0, referenceOffsetY=0)
         for key, value in {
-            'tcs:preferredAdapterClass': 'org.opentcs.virtualvehicle.LoopbackCommunicationAdapterFactory',
-            'loopback:initialPosition': f'init_{i}',
-            'loopback:loadOperation': 'Load cargo',
-            'loopback:unloadOperation': 'Unload cargo',
-            'loopback:operatingTime': '1000',
-            'loopback:acceleration': '1000',
-            'loopback:deceleration': '-1000',
-            **rotation,
+            'tcs:preferredAdapterClass': 'org.opentcs.commadapter.vehicle.vda5050.CommAdapterFactoryImpl',
+            'vda5050:version': '2.0',
+            'vda5050:interfaceName': 'uagv',
+            'vda5050:manufacturer': 'SortingDemo',
+            'vda5050:serialNumber': f'Sorting-AGV-{i:02d}',
+            'vda5050:mapId': 'Sorting',
+            'vda5050:maxStepsBase': '1',
+            'vda5050:maxStepsHorizon': '0',
+            'vda5050:vehicleLengthLoaded': '500',
+            'vda5050:vehicleLengthUnloaded': '500',
+            'sorting:initialPosition': f'init_{i}',
         }.items():
             prop(vehicle, key, value)
-        rgb = colorsys.hsv_to_rgb((i - 1) / 24, 0.8, 0.9)
+        rgb = colorsys.hsv_to_rgb((i - 1) / fleet_size, 0.8, 0.9)
         element(vehicle, 'vehicleLayout', color='#' + ''.join(f'{round(c * 255):02X}' for c in rgb))
     types = [('Pickup', 'Load cargo', 'LOAD_TRANSFER_GENERIC'),
              ('Dropoff', 'Unload cargo', 'LOAD_TRANSFER_GENERIC'),
@@ -139,7 +147,7 @@ def main():
     ET.indent(root, space='    ')
     ET.ElementTree(root).write(folder / 'Sorting.xml', encoding='UTF-8', xml_declaration=True)
     print(f'Generated Sorting.xml: {len(used)} points, {len(lanes)} paths, '
-          f'{len(root.findall("location"))} locations, 24 vehicles; {scale:g} mm/pixel')
+          f'{len(root.findall("location"))} locations, {fleet_size} vehicles; {scale:g} mm/pixel')
 
 
 if __name__ == '__main__':

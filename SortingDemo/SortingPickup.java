@@ -23,12 +23,9 @@ final class SortingPickup {
     double forward = Double.parseDouble(vehicle.getAttribute("maxVelocity"));
     double reverse = Double.parseDouble(vehicle.getAttribute("maxReverseVelocity"));
     double acceleration = 1000, deceleration = 1000;
-    var props = vehicle.getElementsByTagName("property");
-    for (int i = 0; i < props.getLength(); i++) {
-      var p = (Element) props.item(i);
-      if (p.getAttribute("name").equals("loopback:acceleration")) acceleration = Double.parseDouble(p.getAttribute("value"));
-      if (p.getAttribute("name").equals("loopback:deceleration")) deceleration = Math.abs(Double.parseDouble(p.getAttribute("value")));
-    }
+    double simulatorSpeed = Double.parseDouble(config.getProperty("motion.maxSpeed", "1.8")) * 1000;
+    if (!Double.isFinite(simulatorSpeed) || simulatorSpeed <= 0) throw new IllegalArgumentException("Invalid simulator speed");
+    forward = Math.min(forward, simulatorSpeed); reverse = Math.min(reverse, simulatorSpeed);
     var paths = root.getElementsByTagName("path");
     for (int i = 0; i < paths.getLength(); i++) {
       var p = (Element) paths.item(i);

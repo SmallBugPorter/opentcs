@@ -19,5 +19,5 @@ sh startOperationsDesk.sh
 
 
 cd /home/lebi/opentcs_ws/opentcs
-SortingDemo/simulation.sh setup
+SortingDemo/mqtt-vehicles.sh start
 SortingDemo/simulation.sh start

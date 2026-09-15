@@ -20,7 +20,7 @@ class SortingPickupTest {
   }
   public static void main(String[] args) throws Exception {
     var a = fixture(); var s = new SortingSimulation.State(); s.fingerprint = SortingSimulation.fingerprint();
-    var fleet = new TreeMap<Integer,Vehicle>(); for (int i = 1; i <= 24; i++) fleet.put(i, vehicle(i, "home"));
+    var fleet = new TreeMap<Integer,Vehicle>(); for (int i = 1; i <= SortingSimulation.VEHICLES; i++) fleet.put(i, vehicle(i, "home"));
     require(Math.abs(SortingPickup.seconds(1000, 1800, 1000, 1000) - 2) < 1e-9, "Acceleration estimate wrong");
     require(a.choose(1, s, fleet).pickup() == 1, "Nearest empty pickup not selected");
     s.active[2] = "queued"; s.stage[2] = "PICKUP"; s.pickup[2] = 1;
@@ -32,7 +32,7 @@ class SortingPickupTest {
     require(a.queued(1, s, fleet, 1) == 1, "Vehicle still at pickup ignored");
     fleet.put(2, vehicle(2, "home")); s.active[2] = null;
     var traffic = new SortingTraffic(SortingSimulation.MODEL.toFile());
-    for (int i = 1; i <= 24; i++) {
+    for (int i = 1; i <= SortingSimulation.VEHICLES; i++) {
       var choice = a.choose(i, s, fleet); require(choice != null, "Unexpected admission limit");
       s.pickup[i] = choice.pickup(); SortingSimulation.prepare(s, i, traffic);
       require("PICKUP".equals(s.stage[i]), "Selection created non-pickup/parking task");
@@ -40,11 +40,11 @@ class SortingPickupTest {
     }
     for (int p = 1; p <= 3; p++) require(a.queued(p, s, fleet, 0) > 4, "Old four-vehicle cap still present");
     var restored = SortingSimulation.decode(SortingSimulation.encode(s), s.fingerprint);
-    for (int i = 1; i <= 24; i++) require(restored.pickup[i] == s.pickup[i] && restored.active[i].equals(s.active[i]), "Restart changed task choice");
+    for (int i = 1; i <= SortingSimulation.VEHICLES; i++) require(restored.pickup[i] == s.pickup[i] && restored.active[i].equals(s.active[i]), "Restart changed task choice");
     var legacy = SortingSimulation.encode(s); legacy.remove("pickup.3");
     require(SortingSimulation.decode(legacy, s.fingerprint).pickup[3] == 3, "Legacy fixed task migrated incorrectly");
     var real = new SortingPickup(SortingSimulation.MODEL, SortingSimulation.SETTINGS);
-    var starts = new ArrayList<>(traffic.dropoffs); for (int i = 1; i <= 24; i++) starts.add("init_" + i);
+    var starts = new ArrayList<>(traffic.dropoffs); for (int i = 1; i <= SortingSimulation.VEHICLES; i++) starts.add("init_" + i);
     for (String start : starts) for (int p = 1; p <= 3; p++) {
       String from = start;
       for (String to : SortingPickup.zone(p)) {

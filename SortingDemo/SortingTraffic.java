@@ -62,7 +62,7 @@ final class SortingTraffic {
       if (Integer.parseInt(path.getAttribute("maxVelocity")) > 0) graph.get(a).add(new Edge(b, length));
       if (Integer.parseInt(path.getAttribute("maxReverseVelocity")) > 0) graph.get(b).add(new Edge(a, length));
     }
-    for (int i = 1; i <= 24; i++) {
+    for (int i = 1; i <= SortingSimulation.VEHICLES; i++) {
       if (!graph.containsKey("init_" + i)) throw new IllegalArgumentException("Missing init_" + i);
       homes.put(name(i), "init_" + i);
     }
