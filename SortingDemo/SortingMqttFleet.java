@@ -75,6 +75,7 @@ class SortingMqttFleet {
     try { start(); } catch (Exception error) { error.printStackTrace(); System.exit(1); }
   }
   static void start() throws Exception {
+    if (!Files.exists(CONFIG)) throw new IllegalStateException("Configure MQTT in " + CONFIG);
     fingerprint=SortingSimulation.fingerprint();
     Properties config=new Properties();
     Path defaults=CONFIG.resolveSibling("opentcs-kernel-defaults-baseline.properties");

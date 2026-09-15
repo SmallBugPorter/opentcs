@@ -22,6 +22,8 @@ SortingMqttFleet（25 个独立 Client ID，各自持有车辆状态）
 
 在 `/home/lebi/opentcs_ws/opentcs` 项目根目录执行，需要 JDK 21、Python 3 / PyYAML、已构建的发行目录、运行中的 Kernel 和 MQTT Broker。
 
+在 `build/install/opentcs/opentcs-kernel` 中执行 `sh startKernel.sh` 启动 Kernel。使用发行目录自身的 `config/`、`data/` 和 `log/`，不重定向到 SortingDemo。Kernel 在前台运行，请保持终端打开，并在另一个终端启动车队和派单器。
+
 Kernel 的 `build/install/opentcs/opentcs-kernel/config/opentcs-kernel.properties` 应配置：
 
 ```properties
@@ -61,6 +63,9 @@ SortingDemo/simulation.sh start
 `simulation.sh start` 会先校验车队与任务检查点，再启用 Kernel 重启后处于禁用状态的 VDA5050 驱动，并将这些恢复的车辆设为 `TO_BE_UTILIZED`。已启用车辆的集成级别和暂停状态不变。收到 MQTT 状态后才为可用车辆派单：
 
 ```bash
+# 先启动 Broker，再在另一终端启动原版 Kernel
+docker compose -f deploy-server/compose.yaml up -d mosquitto
+# cd build/install/opentcs/opentcs-kernel && sh startKernel.sh
 SortingDemo/mqtt-vehicles.sh start
 SortingDemo/simulation.sh start
 SortingDemo/simulation.sh status
@@ -77,7 +82,7 @@ SortingDemo/simulation.sh stop
 
 `status` 还会显示每辆车的 `mqttBroker=true` 和 `vehicleConnection=ONLINE`，可分别判断 Kernel 到 Broker 及车辆端连接状态。
 
-计划停止整个仿真时，先回库：
+计划关闭或重启 Kernel / 电脑时，必须先回库。当前 Kernel 重启不会恢复未完成的运输任务，直接关闭会使仿真检查点引用不存在的任务。先执行：
 
 ```bash
 SortingDemo/simulation.sh drain
@@ -86,7 +91,7 @@ SortingDemo/simulation.sh stop
 SortingDemo/mqtt-vehicles.sh stop
 ```
 
-回库完成后再次 `simulation.sh start` 会清除回库请求，恢复正常分拣。
+确认日志出现 `DRAINED`，停止派单器和车队后，才关闭 Kernel。下次先启动 Broker、Kernel、车队，最后启动派单器。回库完成后再次 `simulation.sh start` 会清除回库请求，恢复正常分拣。
 
 模拟器在 MQTT 断线时冻结运动，重连后重新订阅并上报当前状态。正常 `stop` 保存每辆车的待执行路段、动作进度、位置、电量及载货状态；在 Kernel 未重置的情况下可用 `start` 恢复。不要删除模拟器检查点后继续旧 Kernel 的订单，否则车辆位置会不一致。强制杀进程/断电可能丢失最后一次检查点后的进度，这不是生产级故障恢复协议。
 
@@ -159,3 +164,11 @@ SortingDemo/mqtt-vehicles.sh verify
 ```
 
 `deploy-server/deploy-map/Sorting.xml` 已同步为当前包含 `init_25` 的分拣地图，与 `SortingDemo/Sorting.xml` 一致。之前部署目录中不含 `init_25` 的旧图已备份到 `runtime/before-25-vehicles-1789464240/deployment-Sorting.xml`。
+
+## 构建目录与备份
+
+Kernel 使用原版 `startKernel.sh` 和发行目录中的配置、地图、日志。MQTT 模拟器也读取发行目录 `config/opentcs-kernel.properties`。重新执行 `installDist` 前请备份该目录的 `config/` 和 `data/`。
+
+若 Kernel 地图变为 `unnamed` 或旧任务已丢失，车辆检查点不能直接恢复那些任务。应先备份运行数据，停止派单器和车队，再执行 `setup` 开始新一轮；日常启动不执行 `setup`。
+
+2026-09-15 之前恢复时的 806 次分拣记录已备份到 `SortingDemo/runtime/recovery-1789470327/`。Broker 的独立账号为 `opentcs-sorting`，密码保存在本机 Kernel 配置中。
