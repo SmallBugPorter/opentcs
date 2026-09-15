@@ -32,7 +32,7 @@ class SortingSchedulerTest {
     var recovered = SortingSimulation.decode(SortingSimulation.encode(s), s.fingerprint);
     require(recovered.submitted[1] && recovered.active[1].equals(name) && recovered.target[1].equals(target), "Intent not persistent");
     SortingSimulation.account(s, 1, 3000); SortingSimulation.account(s, 1, 3000);
-    require(s.energy[1] == 99.85, "Distance charged twice");
+    require(Math.abs(s.energy[1] - (100 - 3 * SortingSimulation.CONSUMPTION)) < 1e-6, "Distance charged twice");
     SortingSimulation.finish(s, 1, 2000);
     require(s.loaded[1] && s.completed[1] == 0, "Pickup counted as sort");
     s.energy[1] = 19;

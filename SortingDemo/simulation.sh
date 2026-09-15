@@ -2,8 +2,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p SortingDemo/runtime/classes
-if [[ SortingDemo/SortingSchedulerTest.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ ! -f SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingSimulation.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingTraffic.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingTrafficTest.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingMetrics.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]]; then
-  javac -cp 'build/install/opentcs/opentcs-kernel/lib/*' -d SortingDemo/runtime/classes SortingDemo/SortingTraffic.java SortingDemo/SortingMetrics.java SortingDemo/SortingTrafficTest.java SortingDemo/SortingSimulation.java SortingDemo/SortingSchedulerTest.java
+if [[ SortingDemo/SortingPickup.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingPickupTest.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingSchedulerTest.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ ! -f SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingSimulation.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingTraffic.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingTrafficTest.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]] || [[ SortingDemo/SortingMetrics.java -nt SortingDemo/runtime/classes/SortingSimulation.class ]]; then
+  javac -cp 'build/install/opentcs/opentcs-kernel/lib/*' -d SortingDemo/runtime/classes SortingDemo/SortingTraffic.java SortingDemo/SortingMetrics.java SortingDemo/SortingTrafficTest.java SortingDemo/SortingSimulation.java SortingDemo/SortingSchedulerTest.java SortingDemo/SortingPickup.java SortingDemo/SortingPickupTest.java
 fi
 case "${1:-status}" in
   start)

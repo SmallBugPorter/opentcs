@@ -24,14 +24,15 @@ class SortingSimulation {
   static final Path HOURLY = Path.of("SortingDemo/runtime/hourly.csv");
   static final Path DRAIN_REQUEST = Path.of("SortingDemo/runtime/drain.request");
   static final Path MEASURE_REQUEST = Path.of("SortingDemo/runtime/start-measurement.request");
+  static final Properties SETTINGS = new Properties();
   static final double CONSUMPTION;
   static final double CHARGE_THRESHOLD;
   static final double RESUME_ENERGY;
   static {
     try {
-      var config = new Properties();
+      var config = SETTINGS;
       try (var in = Files.newInputStream(Path.of("SortingDemo/simulation.properties"))) { config.load(in); }
-      CONSUMPTION = Double.parseDouble(config.getProperty("battery.consumptionPercentPerMeter", "0.05"));
+      CONSUMPTION = Double.parseDouble(config.getProperty("battery.consumptionPercentPerMeter", "0.01"));
       CHARGE_THRESHOLD = Double.parseDouble(config.getProperty("battery.chargeThresholdPercent", "20"));
       RESUME_ENERGY = Double.parseDouble(config.getProperty("battery.resumePercent", "100"));
       if (!(Double.isFinite(CONSUMPTION) && CONSUMPTION > 0 && CHARGE_THRESHOLD > 0 && CHARGE_THRESHOLD < RESUME_ENERGY && RESUME_ENERGY <= 100)) {
@@ -60,6 +61,7 @@ class SortingSimulation {
     final double[] energy = new double[VEHICLES + 1];
     final boolean[] loaded = new boolean[VEHICLES + 1], charging = new boolean[VEHICLES + 1], submitted = new boolean[VEHICLES + 1];
     final String[] active = new String[VEHICLES + 1], stage = new String[VEHICLES + 1], target = new String[VEHICLES + 1];
+    final int[] pickup = new int[VEHICLES + 1];
     final long[] accounted = new long[VEHICLES + 1];
     SortingMetrics metrics = new SortingMetrics();
     State() { Arrays.fill(energy, 100); }
@@ -78,6 +80,7 @@ class SortingSimulation {
     props.setProperty("sorting.randomSeed", Long.toString(state.randomSeed));
     state.metrics.save(props);
     for (int i = 1; i <= VEHICLES; i++) {
+      props.setProperty("pickup." + i, "" + state.pickup[i]);
       props.setProperty("completed." + i, "" + state.completed[i]);
       props.setProperty("charges." + i, "" + state.charges[i]);
       props.setProperty("sequence." + i, "" + state.sequence[i]);
@@ -120,6 +123,9 @@ class SortingSimulation {
       s.submitted[i] = Boolean.parseBoolean(props.getProperty("submitted." + i, "false"));
       s.active[i] = props.getProperty("active." + i); s.stage[i] = props.getProperty("stage." + i);
       s.target[i] = props.getProperty("target." + i);
+      s.pickup[i] = Integer.parseInt(props.getProperty("pickup." + i,
+          "PICKUP".equals(s.stage[i]) ? "" + ((i - 1) % 3 + 1) : "0"));
+      if (s.pickup[i] < 0 || s.pickup[i] > 3) throw new IllegalStateException("Invalid pickup selection");
     }
     return s;
   }
@@ -136,7 +142,7 @@ class SortingSimulation {
     if (s.stage[vehicle].equals("CHARGE")) return List.of(new DestinationCreationTO("LOC_init_" + vehicle, "CHARGE"));
     if (s.stage[vehicle].equals("DELIVERY")) return List.of(new DestinationCreationTO("LOC_" + s.target[vehicle], "Unload cargo"));
     var result = new ArrayList<DestinationCreationTO>();
-    int pickup = (vehicle - 1) % 3 + 1;
+    int pickup = s.pickup[vehicle] == 0 ? (vehicle - 1) % 3 + 1 : s.pickup[vehicle];
     for (int slot = 4; slot >= 1; slot--)
       result.add(new DestinationCreationTO("waite_" + ((pickup - 1) * 4 + slot), "MOVE"));
     result.add(new DestinationCreationTO("LOC_pickup_" + pickup, "Load cargo"));
@@ -145,7 +151,10 @@ class SortingSimulation {
 
   static void prepare(State s, int i, SortingTraffic traffic) {
     s.stage[i] = s.loaded[i] ? "DELIVERY" : s.energy[i] <= CHARGE_THRESHOLD + 1e-8 ? "CHARGE" : "PICKUP";
-    if (s.stage[i].equals("PICKUP")) s.target[i] = traffic.destination(i, s.completed[i] + 1);
+    if (s.stage[i].equals("PICKUP")) {
+      if (s.pickup[i] == 0) s.pickup[i] = (i - 1) % 3 + 1;
+      s.target[i] = traffic.destination(i, s.completed[i] + 1);
+    }
     s.active[i] = "Sorting-" + s.run + "-v" + i + "-n" + (++s.sequence[i]);
     s.accounted[i] = 0; s.submitted[i] = false;
   }
@@ -235,6 +244,7 @@ class SortingSimulation {
 
   static void run(KernelServicePortal portal) throws Exception {
     var s = load(); var traffic = new SortingTraffic(MODEL.toFile(), s.randomSeed);
+    var pickupSelector = new SortingPickup(MODEL, SETTINGS);
     var owned = new HashSet<>(Arrays.asList(s.active));
     for (var order : portal.getTransportOrderService().fetch(TransportOrder.class))
       if (!order.getState().isFinalState() && !owned.contains(order.getName()))
@@ -252,7 +262,8 @@ class SortingSimulation {
         save(s); Files.delete(MEASURE_REQUEST);
       }
       if (s.metrics.startMillis == 0) { s.metrics.startMillis = pollStarted; save(s); }
-      for (var entry : fleet(portal).entrySet()) {
+      var snapshot = fleet(portal);
+      for (var entry : snapshot.entrySet()) {
         int i = entry.getKey(); var v = entry.getValue();
         if (s.charging[i]) {
           s.energy[i] = v.getEnergyLevel();
@@ -267,7 +278,17 @@ class SortingSimulation {
           if (Files.exists(DRAIN_REQUEST) && !s.loaded[i]) {
             if (v.getCurrentPosition() != null && v.getCurrentPosition().getName().equals("init_" + i)) continue;
             prepare(s, i, traffic); s.stage[i] = "PARK";
-          } else prepare(s, i, traffic);
+          } else {
+            if (!s.loaded[i] && s.energy[i] > CHARGE_THRESHOLD + 1e-8) {
+              var choice = pickupSelector.choose(i, s, snapshot);
+              if (choice == null) throw new IllegalStateException("No reachable pickup from " + v.getCurrentPosition());
+              s.pickup[i] = choice.pickup();
+              System.out.println(Instant.now() + " PICKUP_SELECT " + v.getName() + " pickup=" + choice.pickup()
+                  + " routeMeters=" + choice.meters() + " travelSeconds=" + choice.travelSeconds()
+                  + " queued=" + choice.queued() + " score=" + choice.score());
+            }
+            prepare(s, i, traffic);
+          }
           save(s); // Persist intent before creating the kernel order.
         }
         var order = portal.getTransportOrderService().fetch(TransportOrder.class, s.active[i]).orElse(null);
@@ -276,7 +297,7 @@ class SortingSimulation {
           publishEnergy(portal, v, s.energy[i]);
           portal.getTransportOrderService().createTransportOrder(new TransportOrderCreationTO(s.active[i], destinations(s, i))
               .withIntendedVehicleName(v.getName()).withProperty("sorting:strategy", VERSION)
-              .withProperty("sorting:stage", s.stage[i]).withProperty("sorting:cycle", "" + (s.completed[i] + 1)));
+              .withProperty("sorting:pickup", Integer.toString(s.pickup[i])).withProperty("sorting:stage", s.stage[i]).withProperty("sorting:cycle", "" + (s.completed[i] + 1)));
           s.submitted[i] = true; save(s);
           portal.getDispatcherService().dispatch();
           lastProgress[i] = pollStarted;
@@ -323,7 +344,7 @@ class SortingSimulation {
     if (mode.equals("check")) {
       new ModelParser().readModel(MODEL.toFile());
       SortingTrafficTest.main(new String[]{"--routes-only"});
-      SortingSchedulerTest.main(new String[0]); return;
+      SortingSchedulerTest.main(new String[0]); SortingPickupTest.main(new String[0]); return;
     }
     if (mode.equals("stats")) {
       var state = load();
@@ -389,6 +410,10 @@ class SortingSimulation {
             + " vehicles with sorts=" + Arrays.stream(state.completed).filter(c -> c > 0).count() + "/24"
             + " minimum sorts=" + Arrays.stream(state.completed, 1, 25).min().orElse(0)
             + " charges=" + Arrays.stream(state.charges).sum());
+        var selector = new SortingPickup(MODEL, SETTINGS);
+        var snapshot = fleet(portal);
+        for (int pickup = 1; pickup <= 3; pickup++) System.out.println("Pickup " + pickup + " queuedOrPresent="
+            + selector.queued(pickup, state, snapshot, 0));
         System.out.println(state.metrics.summary(System.currentTimeMillis()));
       }
       var counts = new TreeMap<String, Integer>();
