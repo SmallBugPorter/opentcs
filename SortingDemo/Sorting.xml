@@ -22,6 +22,7 @@
     <point name="L1_P005" positionX="5000" positionY="-6000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_002" />
+        <outgoingPath name="L1_Path_400" />
         <property name="rmf:vertexIndex" value="5" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
@@ -35,7 +36,6 @@
     <point name="L1_P007" positionX="5000" positionY="-8000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_004" />
-        <outgoingPath name="L1_Path_402" />
         <property name="rmf:vertexIndex" value="7" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
@@ -49,7 +49,7 @@
     <point name="L1_P009" positionX="5000" positionY="-10000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_006" />
-        <outgoingPath name="L1_Path_409" />
+        <outgoingPath name="L1_Path_407" />
         <property name="rmf:vertexIndex" value="9" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
@@ -63,7 +63,6 @@
     <point name="L1_P011" positionX="5000" positionY="-12000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_008" />
-        <outgoingPath name="L1_Path_416" />
         <property name="rmf:vertexIndex" value="11" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
@@ -77,6 +76,7 @@
     <point name="L1_P013" positionX="5000" positionY="-14000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_010" />
+        <outgoingPath name="L1_Path_414" />
         <property name="rmf:vertexIndex" value="13" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
@@ -1381,63 +1381,66 @@
         <property name="rmf:is_holding_point" value="true" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_1" positionX="2000" positionY="-7000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_2" positionX="2000" positionY="-5000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_406" />
+        <outgoingPath name="L1_Path_404" />
         <property name="rmf:vertexIndex" value="198" />
+        <property name="sorting:pickup" value="1" />
+        <property name="sorting:queuePosition" value="2" />
+        <property name="rmf:is_holding_point" value="true" />
+        <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
+    </point>
+    <point name="waite_1" positionX="3000" positionY="-5000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+        <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
+        <outgoingPath name="L1_Path_405" />
+        <property name="rmf:vertexIndex" value="199" />
         <property name="sorting:pickup" value="1" />
         <property name="sorting:queuePosition" value="1" />
         <property name="rmf:is_holding_point" value="true" />
         <property name="rmf:is_parking_spot" value="false" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="pickup_1" positionX="3000" positionY="-7000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_6" positionX="2000" positionY="-9000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_407" />
-        <property name="rmf:vertexIndex" value="199" />
+        <outgoingPath name="L1_Path_411" />
+        <property name="rmf:vertexIndex" value="200" />
+        <property name="sorting:pickup" value="2" />
+        <property name="sorting:queuePosition" value="2" />
         <property name="rmf:is_holding_point" value="true" />
-        <property name="rmf:is_parking_spot" value="false" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_5" positionX="2000" positionY="-9000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_5" positionX="3000" positionY="-9000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_413" />
-        <property name="rmf:vertexIndex" value="200" />
+        <outgoingPath name="L1_Path_412" />
+        <property name="rmf:vertexIndex" value="201" />
         <property name="sorting:pickup" value="2" />
         <property name="sorting:queuePosition" value="1" />
         <property name="rmf:is_holding_point" value="true" />
         <property name="rmf:is_parking_spot" value="false" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="pickup_2" positionX="3000" positionY="-9000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_10" positionX="2000" positionY="-13000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_414" />
-        <property name="rmf:vertexIndex" value="201" />
+        <outgoingPath name="L1_Path_418" />
+        <property name="rmf:vertexIndex" value="202" />
+        <property name="sorting:pickup" value="3" />
+        <property name="sorting:queuePosition" value="2" />
         <property name="rmf:is_holding_point" value="true" />
-        <property name="rmf:is_parking_spot" value="false" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_9" positionX="2000" positionY="-11000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_9" positionX="3000" positionY="-13000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_420" />
-        <property name="rmf:vertexIndex" value="202" />
+        <outgoingPath name="L1_Path_419" />
+        <property name="rmf:vertexIndex" value="203" />
         <property name="sorting:pickup" value="3" />
         <property name="sorting:queuePosition" value="1" />
         <property name="rmf:is_holding_point" value="true" />
         <property name="rmf:is_parking_spot" value="false" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="pickup_3" positionX="3000" positionY="-11000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="init_1" positionX="7000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_421" />
-        <property name="rmf:vertexIndex" value="203" />
-        <property name="rmf:is_holding_point" value="true" />
-        <property name="rmf:is_parking_spot" value="false" />
-        <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
-    </point>
-    <point name="init_1" positionX="5000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
-        <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_385" />
+        <outgoingPath name="L1_Path_383" />
         <property name="rmf:vertexIndex" value="204" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1445,9 +1448,9 @@
         <property name="rmf:rfid" value="000000000000001" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_2" positionX="6000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_2" positionX="8000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_386" />
+        <outgoingPath name="L1_Path_384" />
         <property name="rmf:vertexIndex" value="205" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1455,9 +1458,9 @@
         <property name="rmf:rfid" value="000000000000002" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_3" positionX="7000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_3" positionX="9000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_387" />
+        <outgoingPath name="L1_Path_385" />
         <property name="rmf:vertexIndex" value="206" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1465,9 +1468,9 @@
         <property name="rmf:rfid" value="000000000000003" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_4" positionX="8000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_4" positionX="10000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_388" />
+        <outgoingPath name="L1_Path_386" />
         <property name="rmf:vertexIndex" value="207" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1475,9 +1478,9 @@
         <property name="rmf:rfid" value="000000000000004" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_5" positionX="9000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_5" positionX="11000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_389" />
+        <outgoingPath name="L1_Path_387" />
         <property name="rmf:vertexIndex" value="208" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1485,9 +1488,9 @@
         <property name="rmf:rfid" value="000000000000005" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_6" positionX="10000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_6" positionX="12000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_384" />
+        <outgoingPath name="L1_Path_382" />
         <property name="rmf:vertexIndex" value="209" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1495,9 +1498,9 @@
         <property name="rmf:rfid" value="000000000000006" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_7" positionX="11000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_7" positionX="13000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_383" />
+        <outgoingPath name="L1_Path_381" />
         <property name="rmf:vertexIndex" value="210" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1505,9 +1508,9 @@
         <property name="rmf:rfid" value="000000000000007" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_8" positionX="12000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_8" positionX="14000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_382" />
+        <outgoingPath name="L1_Path_380" />
         <property name="rmf:vertexIndex" value="211" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1515,7 +1518,7 @@
         <property name="rmf:rfid" value="000000000000008" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_9" positionX="13000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_9" positionX="15000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="212" />
         <property name="rmf:is_charger" value="true" />
@@ -1524,9 +1527,9 @@
         <property name="rmf:rfid" value="000000000000009" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_10" positionX="14000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_10" positionX="16000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_380" />
+        <outgoingPath name="L1_Path_378" />
         <property name="rmf:vertexIndex" value="213" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1534,9 +1537,9 @@
         <property name="rmf:rfid" value="000000000000010" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_11" positionX="15000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_11" positionX="17000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_379" />
+        <outgoingPath name="L1_Path_377" />
         <property name="rmf:vertexIndex" value="214" />
         <property name="rmf:is_charger" value="true" />
         <property name="rmf:is_holding_point" value="true" />
@@ -1544,7 +1547,7 @@
         <property name="rmf:rfid" value="000000000000011" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_12" positionX="16000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_12" positionX="18000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_364" />
         <property name="rmf:vertexIndex" value="215" />
@@ -1554,7 +1557,7 @@
         <property name="rmf:rfid" value="000000000000012" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_13" positionX="5000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_13" positionX="7000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="216" />
         <property name="rmf:is_charger" value="true" />
@@ -1563,7 +1566,7 @@
         <property name="rmf:rfid" value="000000000000013" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_14" positionX="6000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_14" positionX="8000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="217" />
         <property name="rmf:is_charger" value="true" />
@@ -1572,7 +1575,7 @@
         <property name="rmf:rfid" value="000000000000014" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_15" positionX="7000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_15" positionX="9000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="218" />
         <property name="rmf:is_charger" value="true" />
@@ -1581,7 +1584,7 @@
         <property name="rmf:rfid" value="000000000000015" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_16" positionX="8000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_16" positionX="10000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="219" />
         <property name="rmf:is_charger" value="true" />
@@ -1590,7 +1593,7 @@
         <property name="rmf:rfid" value="000000000000016" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_17" positionX="9000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_17" positionX="11000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="220" />
         <property name="rmf:is_charger" value="true" />
@@ -1599,7 +1602,7 @@
         <property name="rmf:rfid" value="000000000000017" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_18" positionX="10000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_18" positionX="12000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="221" />
         <property name="rmf:is_charger" value="true" />
@@ -1608,7 +1611,7 @@
         <property name="rmf:rfid" value="000000000000018" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_19" positionX="11000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_19" positionX="13000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="222" />
         <property name="rmf:is_charger" value="true" />
@@ -1617,7 +1620,7 @@
         <property name="rmf:rfid" value="000000000000019" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_20" positionX="12000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_20" positionX="14000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="223" />
         <property name="rmf:is_charger" value="true" />
@@ -1626,7 +1629,7 @@
         <property name="rmf:rfid" value="000000000000020" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_21" positionX="13000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_21" positionX="15000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="224" />
         <property name="rmf:is_charger" value="true" />
@@ -1635,7 +1638,7 @@
         <property name="rmf:rfid" value="000000000000021" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_22" positionX="14000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_22" positionX="16000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="225" />
         <property name="rmf:is_charger" value="true" />
@@ -1644,7 +1647,7 @@
         <property name="rmf:rfid" value="000000000000022" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_23" positionX="15000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_23" positionX="17000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="226" />
         <property name="rmf:is_charger" value="true" />
@@ -1653,7 +1656,7 @@
         <property name="rmf:rfid" value="000000000000023" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="init_24" positionX="16000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+    <point name="init_24" positionX="18000" positionY="-21000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <property name="rmf:vertexIndex" value="227" />
         <property name="rmf:is_charger" value="true" />
@@ -1662,200 +1665,207 @@
         <property name="rmf:rfid" value="000000000000024" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P228" positionX="16000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P228" positionX="18000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_365" />
-        <outgoingPath name="L1_Path_401" />
+        <outgoingPath name="L1_Path_399" />
+        <outgoingPath name="L1_Path_421" />
         <property name="rmf:vertexIndex" value="228" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P229" positionX="15000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P229" positionX="17000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_366" />
-        <outgoingPath name="L1_Path_400" />
+        <outgoingPath name="L1_Path_398" />
         <property name="rmf:vertexIndex" value="229" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P230" positionX="14000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P230" positionX="16000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_367" />
-        <outgoingPath name="L1_Path_399" />
+        <outgoingPath name="L1_Path_397" />
         <property name="rmf:vertexIndex" value="230" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P231" positionX="13000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P231" positionX="15000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_368" />
-        <outgoingPath name="L1_Path_381" />
-        <outgoingPath name="L1_Path_398" />
+        <outgoingPath name="L1_Path_379" />
+        <outgoingPath name="L1_Path_396" />
         <property name="rmf:vertexIndex" value="231" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P232" positionX="12000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P232" positionX="14000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_369" />
-        <outgoingPath name="L1_Path_397" />
+        <outgoingPath name="L1_Path_395" />
         <property name="rmf:vertexIndex" value="232" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P233" positionX="11000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P233" positionX="13000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_370" />
-        <outgoingPath name="L1_Path_396" />
+        <outgoingPath name="L1_Path_394" />
         <property name="rmf:vertexIndex" value="233" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P234" positionX="10000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P234" positionX="12000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_371" />
-        <outgoingPath name="L1_Path_395" />
+        <outgoingPath name="L1_Path_393" />
         <property name="rmf:vertexIndex" value="234" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P235" positionX="9000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P235" positionX="11000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_372" />
-        <outgoingPath name="L1_Path_394" />
+        <outgoingPath name="L1_Path_392" />
         <property name="rmf:vertexIndex" value="235" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P236" positionX="8000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P236" positionX="10000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_373" />
-        <outgoingPath name="L1_Path_393" />
+        <outgoingPath name="L1_Path_391" />
         <property name="rmf:vertexIndex" value="236" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P237" positionX="7000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P237" positionX="9000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_374" />
-        <outgoingPath name="L1_Path_392" />
+        <outgoingPath name="L1_Path_390" />
         <property name="rmf:vertexIndex" value="237" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P238" positionX="6000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P238" positionX="8000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_375" />
-        <outgoingPath name="L1_Path_391" />
+        <outgoingPath name="L1_Path_389" />
         <property name="rmf:vertexIndex" value="238" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P239" positionX="5000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P239" positionX="7000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_376" />
-        <outgoingPath name="L1_Path_390" />
+        <outgoingPath name="L1_Path_388" />
         <property name="rmf:vertexIndex" value="239" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P240" positionX="4000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P240" positionX="5000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_377" />
+        <outgoingPath name="L1_Path_423" />
         <property name="rmf:vertexIndex" value="240" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P241" positionX="4000" positionY="-15000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P241" positionX="4000" positionY="-6000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_378" />
+        <outgoingPath name="L1_Path_401" />
         <property name="rmf:vertexIndex" value="241" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_4" positionX="4000" positionY="-8000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_4" positionX="3000" positionY="-6000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_403" />
+        <outgoingPath name="L1_Path_402" />
         <property name="rmf:vertexIndex" value="242" />
         <property name="sorting:pickup" value="1" />
         <property name="sorting:queuePosition" value="4" />
         <property name="rmf:is_holding_point" value="true" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_3" positionX="3000" positionY="-8000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_3" positionX="2000" positionY="-6000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_404" />
+        <outgoingPath name="L1_Path_403" />
         <property name="rmf:vertexIndex" value="243" />
         <property name="sorting:pickup" value="1" />
         <property name="sorting:queuePosition" value="3" />
         <property name="rmf:is_holding_point" value="true" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_2" positionX="2000" positionY="-8000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="pickup_1" positionX="4000" positionY="-5000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_405" />
+        <outgoingPath name="L1_Path_406" />
         <property name="rmf:vertexIndex" value="244" />
-        <property name="sorting:pickup" value="1" />
-        <property name="sorting:queuePosition" value="2" />
         <property name="rmf:is_holding_point" value="true" />
+        <property name="rmf:is_parking_spot" value="false" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P245" positionX="4000" positionY="-7000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P245" positionX="4000" positionY="-10000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_408" />
         <property name="rmf:vertexIndex" value="245" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_8" positionX="4000" positionY="-10000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_8" positionX="3000" positionY="-10000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_410" />
+        <outgoingPath name="L1_Path_409" />
         <property name="rmf:vertexIndex" value="246" />
         <property name="sorting:pickup" value="2" />
         <property name="sorting:queuePosition" value="4" />
         <property name="rmf:is_holding_point" value="true" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_7" positionX="3000" positionY="-10000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_7" positionX="2000" positionY="-10000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_411" />
+        <outgoingPath name="L1_Path_410" />
         <property name="rmf:vertexIndex" value="247" />
         <property name="sorting:pickup" value="2" />
         <property name="sorting:queuePosition" value="3" />
         <property name="rmf:is_holding_point" value="true" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_6" positionX="2000" positionY="-10000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="pickup_2" positionX="4000" positionY="-9000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_412" />
+        <outgoingPath name="L1_Path_413" />
         <property name="rmf:vertexIndex" value="248" />
-        <property name="sorting:pickup" value="2" />
-        <property name="sorting:queuePosition" value="2" />
         <property name="rmf:is_holding_point" value="true" />
+        <property name="rmf:is_parking_spot" value="false" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P249" positionX="4000" positionY="-9000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="L1_P249" positionX="4000" positionY="-14000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_415" />
         <property name="rmf:vertexIndex" value="249" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_12" positionX="4000" positionY="-12000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_12" positionX="3000" positionY="-14000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_417" />
+        <outgoingPath name="L1_Path_416" />
         <property name="rmf:vertexIndex" value="250" />
         <property name="sorting:pickup" value="3" />
         <property name="sorting:queuePosition" value="4" />
         <property name="rmf:is_holding_point" value="true" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_11" positionX="3000" positionY="-12000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="waite_11" positionX="2000" positionY="-14000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_418" />
+        <outgoingPath name="L1_Path_417" />
         <property name="rmf:vertexIndex" value="251" />
         <property name="sorting:pickup" value="3" />
         <property name="sorting:queuePosition" value="3" />
         <property name="rmf:is_holding_point" value="true" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="waite_10" positionX="2000" positionY="-12000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="pickup_3" positionX="4000" positionY="-13000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
-        <outgoingPath name="L1_Path_419" />
+        <outgoingPath name="L1_Path_420" />
         <property name="rmf:vertexIndex" value="252" />
-        <property name="sorting:pickup" value="3" />
-        <property name="sorting:queuePosition" value="2" />
         <property name="rmf:is_holding_point" value="true" />
+        <property name="rmf:is_parking_spot" value="false" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
-    <point name="L1_P253" positionX="4000" positionY="-11000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
+    <point name="init_25" positionX="19000" positionY="-19000" positionZ="0" vehicleOrientationAngle="NaN" type="PARK_POSITION">
+        <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
+        <property name="rmf:vertexIndex" value="253" />
+        <property name="rmf:is_charger" value="true" />
+        <property name="rmf:is_holding_point" value="true" />
+        <property name="rmf:is_parking_spot" value="true" />
+        <property name="rmf:rfid" value="000000000000025" />
+        <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
+    </point>
+    <point name="L1_P254" positionX="19000" positionY="-20000" positionZ="0" vehicleOrientationAngle="NaN" type="HALT_POSITION">
         <maxVehicleBoundingBox length="1000" width="1000" height="1000" referenceOffsetX="0" referenceOffsetY="0" />
         <outgoingPath name="L1_Path_422" />
-        <property name="rmf:vertexIndex" value="253" />
+        <property name="rmf:vertexIndex" value="254" />
         <pointLayout labelOffsetX="-10" labelOffsetY="-20" layerId="0" />
     </point>
     <path name="L1_Path_000" sourcePoint="L1_P003" destinationPoint="L1_P002" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
@@ -3362,192 +3372,196 @@
         <property name="rmf:laneIndex" value="375" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_376" sourcePoint="L1_P239" destinationPoint="L1_P240" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_376" sourcePoint="L1_P239" destinationPoint="L1_P240" length="2000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="376" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_377" sourcePoint="L1_P240" destinationPoint="L1_P241" length="5000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_377" sourcePoint="init_11" destinationPoint="L1_P229" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="377" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_378" sourcePoint="L1_P241" destinationPoint="L1_P014" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_378" sourcePoint="init_10" destinationPoint="L1_P230" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="378" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_379" sourcePoint="init_11" destinationPoint="L1_P229" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_379" sourcePoint="L1_P231" destinationPoint="init_9" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="379" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_380" sourcePoint="init_10" destinationPoint="L1_P230" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_380" sourcePoint="init_8" destinationPoint="L1_P232" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="380" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_381" sourcePoint="L1_P231" destinationPoint="init_9" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_381" sourcePoint="init_7" destinationPoint="L1_P233" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="381" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_382" sourcePoint="init_8" destinationPoint="L1_P232" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_382" sourcePoint="init_6" destinationPoint="L1_P234" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="382" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_383" sourcePoint="init_7" destinationPoint="L1_P233" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_383" sourcePoint="init_1" destinationPoint="L1_P239" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="383" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_384" sourcePoint="init_6" destinationPoint="L1_P234" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_384" sourcePoint="init_2" destinationPoint="L1_P238" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="384" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_385" sourcePoint="init_1" destinationPoint="L1_P239" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_385" sourcePoint="init_3" destinationPoint="L1_P237" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="385" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_386" sourcePoint="init_2" destinationPoint="L1_P238" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_386" sourcePoint="init_4" destinationPoint="L1_P236" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="386" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_387" sourcePoint="init_3" destinationPoint="L1_P237" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_387" sourcePoint="init_5" destinationPoint="L1_P235" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="387" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_388" sourcePoint="init_4" destinationPoint="L1_P236" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_388" sourcePoint="L1_P239" destinationPoint="init_13" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="388" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_389" sourcePoint="init_5" destinationPoint="L1_P235" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_389" sourcePoint="L1_P238" destinationPoint="init_14" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="389" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_390" sourcePoint="L1_P239" destinationPoint="init_13" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_390" sourcePoint="L1_P237" destinationPoint="init_15" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="390" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_391" sourcePoint="L1_P238" destinationPoint="init_14" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_391" sourcePoint="L1_P236" destinationPoint="init_16" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="391" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_392" sourcePoint="L1_P237" destinationPoint="init_15" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_392" sourcePoint="L1_P235" destinationPoint="init_17" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="392" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_393" sourcePoint="L1_P236" destinationPoint="init_16" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_393" sourcePoint="L1_P234" destinationPoint="init_18" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="393" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_394" sourcePoint="L1_P235" destinationPoint="init_17" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_394" sourcePoint="L1_P233" destinationPoint="init_19" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="394" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_395" sourcePoint="L1_P234" destinationPoint="init_18" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_395" sourcePoint="L1_P232" destinationPoint="init_20" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="395" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_396" sourcePoint="L1_P233" destinationPoint="init_19" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_396" sourcePoint="L1_P231" destinationPoint="init_21" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="396" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_397" sourcePoint="L1_P232" destinationPoint="init_20" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_397" sourcePoint="L1_P230" destinationPoint="init_22" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="397" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_398" sourcePoint="L1_P231" destinationPoint="init_21" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_398" sourcePoint="L1_P229" destinationPoint="init_23" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="398" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_399" sourcePoint="L1_P230" destinationPoint="init_22" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_399" sourcePoint="L1_P228" destinationPoint="init_24" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="399" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_400" sourcePoint="L1_P229" destinationPoint="init_23" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_400" sourcePoint="L1_P005" destinationPoint="L1_P241" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="400" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_401" sourcePoint="L1_P228" destinationPoint="init_24" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+    <path name="L1_Path_401" sourcePoint="L1_P241" destinationPoint="waite_4" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="401" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_402" sourcePoint="L1_P007" destinationPoint="waite_4" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_402" sourcePoint="waite_4" destinationPoint="waite_3" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="402" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_403" sourcePoint="waite_4" destinationPoint="waite_3" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_403" sourcePoint="waite_3" destinationPoint="waite_2" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="403" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_404" sourcePoint="waite_3" destinationPoint="waite_2" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_404" sourcePoint="waite_2" destinationPoint="waite_1" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="404" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_405" sourcePoint="waite_2" destinationPoint="waite_1" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_405" sourcePoint="waite_1" destinationPoint="pickup_1" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="405" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_406" sourcePoint="waite_1" destinationPoint="pickup_1" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_406" sourcePoint="pickup_1" destinationPoint="L1_P004" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="406" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_407" sourcePoint="pickup_1" destinationPoint="L1_P245" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_407" sourcePoint="L1_P009" destinationPoint="L1_P245" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="407" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_408" sourcePoint="L1_P245" destinationPoint="L1_P006" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_408" sourcePoint="L1_P245" destinationPoint="waite_8" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="408" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_409" sourcePoint="L1_P009" destinationPoint="waite_8" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_409" sourcePoint="waite_8" destinationPoint="waite_7" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="409" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_410" sourcePoint="waite_8" destinationPoint="waite_7" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_410" sourcePoint="waite_7" destinationPoint="waite_6" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="410" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_411" sourcePoint="waite_7" destinationPoint="waite_6" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_411" sourcePoint="waite_6" destinationPoint="waite_5" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="411" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_412" sourcePoint="waite_6" destinationPoint="waite_5" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_412" sourcePoint="waite_5" destinationPoint="pickup_2" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="412" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_413" sourcePoint="waite_5" destinationPoint="pickup_2" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_413" sourcePoint="pickup_2" destinationPoint="L1_P008" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="413" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_414" sourcePoint="pickup_2" destinationPoint="L1_P249" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_414" sourcePoint="L1_P013" destinationPoint="L1_P249" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="414" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_415" sourcePoint="L1_P249" destinationPoint="L1_P008" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_415" sourcePoint="L1_P249" destinationPoint="waite_12" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="415" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_416" sourcePoint="L1_P011" destinationPoint="waite_12" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_416" sourcePoint="waite_12" destinationPoint="waite_11" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="416" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_417" sourcePoint="waite_12" destinationPoint="waite_11" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_417" sourcePoint="waite_11" destinationPoint="waite_10" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="417" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_418" sourcePoint="waite_11" destinationPoint="waite_10" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_418" sourcePoint="waite_10" destinationPoint="waite_9" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="418" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_419" sourcePoint="waite_10" destinationPoint="waite_9" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_419" sourcePoint="waite_9" destinationPoint="pickup_3" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="419" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_420" sourcePoint="waite_9" destinationPoint="pickup_3" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_420" sourcePoint="pickup_3" destinationPoint="L1_P012" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
         <property name="rmf:laneIndex" value="420" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_421" sourcePoint="pickup_3" destinationPoint="L1_P253" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_421" sourcePoint="L1_P228" destinationPoint="L1_P254" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="421" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
-    <path name="L1_Path_422" sourcePoint="L1_P253" destinationPoint="L1_P010" length="1000" maxVelocity="1800" maxReverseVelocity="0" locked="false">
+    <path name="L1_Path_422" sourcePoint="L1_P254" destinationPoint="init_25" length="1000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
         <property name="rmf:laneIndex" value="422" />
+        <pathLayout connectionType="DIRECT" layerId="0" />
+    </path>
+    <path name="L1_Path_423" sourcePoint="L1_P240" destinationPoint="L1_P015" length="4000" maxVelocity="1800" maxReverseVelocity="1800" locked="false">
+        <property name="rmf:laneIndex" value="423" />
         <pathLayout connectionType="DIRECT" layerId="0" />
     </path>
     <vehicle name="Sorting-AGV-01" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3557,12 +3571,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#E62E2E" />
     </vehicle>
     <vehicle name="Sorting-AGV-02" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3572,12 +3586,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#E65C2E" />
     </vehicle>
     <vehicle name="Sorting-AGV-03" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3587,12 +3601,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#E68A2E" />
     </vehicle>
     <vehicle name="Sorting-AGV-04" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3602,12 +3616,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#E6B82E" />
     </vehicle>
     <vehicle name="Sorting-AGV-05" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3617,12 +3631,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#E6E62E" />
     </vehicle>
     <vehicle name="Sorting-AGV-06" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3632,12 +3646,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#B8E62E" />
     </vehicle>
     <vehicle name="Sorting-AGV-07" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3647,12 +3661,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#8AE62E" />
     </vehicle>
     <vehicle name="Sorting-AGV-08" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3662,12 +3676,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#5CE62E" />
     </vehicle>
     <vehicle name="Sorting-AGV-09" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3677,12 +3691,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#2EE62E" />
     </vehicle>
     <vehicle name="Sorting-AGV-10" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3692,12 +3706,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#2EE65C" />
     </vehicle>
     <vehicle name="Sorting-AGV-11" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3707,12 +3721,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#2EE68A" />
     </vehicle>
     <vehicle name="Sorting-AGV-12" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3722,12 +3736,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#2EE6B8" />
     </vehicle>
     <vehicle name="Sorting-AGV-13" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3737,12 +3751,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#2EE6E6" />
     </vehicle>
     <vehicle name="Sorting-AGV-14" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3752,12 +3766,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#2EB8E6" />
     </vehicle>
     <vehicle name="Sorting-AGV-15" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3767,12 +3781,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#2E8AE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-16" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3782,12 +3796,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#2E5CE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-17" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3797,12 +3811,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#2E2EE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-18" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3812,12 +3826,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#5C2EE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-19" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3827,12 +3841,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#8A2EE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-20" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3842,12 +3856,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#B82EE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-21" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3857,12 +3871,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#E62EE6" />
     </vehicle>
     <vehicle name="Sorting-AGV-22" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3872,12 +3886,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#E62EB8" />
     </vehicle>
     <vehicle name="Sorting-AGV-23" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3887,12 +3901,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#E62E8A" />
     </vehicle>
     <vehicle name="Sorting-AGV-24" energyLevelCritical="20" energyLevelGood="80" energyLevelFullyRecharged="95" energyLevelSufficientlyRecharged="40" maxVelocity="1800" maxReverseVelocity="1800">
@@ -3902,12 +3916,12 @@
         <property name="loopback:loadOperation" value="Load cargo" />
         <property name="loopback:unloadOperation" value="Unload cargo" />
         <property name="loopback:operatingTime" value="1000" />
-        <property name="loopback:acceleration" value="500" />
-        <property name="loopback:deceleration" value="-500" />
+        <property name="loopback:acceleration" value="1000" />
+        <property name="loopback:deceleration" value="-1000" />
         <property name="loopback:rotationEnabled" value="true" />
         <property name="loopback:maxAngularVelocity" value="90" />
-        <property name="loopback:maxAngularAcceleration" value="90" />
-        <property name="loopback:maxAngularDeceleration" value="90" />
+        <property name="loopback:maxAngularAcceleration" value="180" />
+        <property name="loopback:maxAngularDeceleration" value="180" />
         <vehicleLayout color="#E62E5C" />
     </vehicle>
     <locationType name="Pickup">
@@ -4101,138 +4115,143 @@
         <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="LOAD_TRANSFER_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_pickup_1" positionX="2300" positionY="-7000" positionZ="0" locked="false" type="Pickup">
-        <link point="pickup_1" />
-        <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC" />
-        <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="LOAD_TRANSFER_GENERIC" layerId="0" />
-    </location>
-    <location name="LOC_pickup_2" positionX="2300" positionY="-9000" positionZ="0" locked="false" type="Pickup">
-        <link point="pickup_2" />
-        <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC" />
-        <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="LOAD_TRANSFER_GENERIC" layerId="0" />
-    </location>
-    <location name="LOC_pickup_3" positionX="2300" positionY="-11000" positionZ="0" locked="false" type="Pickup">
-        <link point="pickup_3" />
-        <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC" />
-        <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="LOAD_TRANSFER_GENERIC" layerId="0" />
-    </location>
-    <location name="LOC_init_1" positionX="5000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_1" positionX="7000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_1" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_2" positionX="6000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_2" positionX="8000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_2" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_3" positionX="7000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_3" positionX="9000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_3" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_4" positionX="8000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_4" positionX="10000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_4" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_5" positionX="9000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_5" positionX="11000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_5" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_6" positionX="10000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_6" positionX="12000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_6" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_7" positionX="11000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_7" positionX="13000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_7" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_8" positionX="12000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_8" positionX="14000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_8" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_9" positionX="13000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_9" positionX="15000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_9" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_10" positionX="14000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_10" positionX="16000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_10" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_11" positionX="15000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_11" positionX="17000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_11" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_12" positionX="16000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_12" positionX="18000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
         <link point="init_12" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_13" positionX="5000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_13" positionX="7000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_13" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_14" positionX="6000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_14" positionX="8000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_14" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_15" positionX="7000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_15" positionX="9000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_15" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_16" positionX="8000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_16" positionX="10000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_16" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_17" positionX="9000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_17" positionX="11000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_17" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_18" positionX="10000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_18" positionX="12000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_18" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_19" positionX="11000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_19" positionX="13000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_19" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_20" positionX="12000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_20" positionX="14000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_20" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_21" positionX="13000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_21" positionX="15000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_21" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_22" positionX="14000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_22" positionX="16000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_22" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_23" positionX="15000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_23" positionX="17000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_23" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>
-    <location name="LOC_init_24" positionX="16000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
+    <location name="LOC_init_24" positionX="18000" positionY="-21700" positionZ="0" locked="false" type="Recharge">
         <link point="init_24" />
+        <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
+        <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
+    </location>
+    <location name="LOC_pickup_1" positionX="3300" positionY="-5000" positionZ="0" locked="false" type="Pickup">
+        <link point="pickup_1" />
+        <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC" />
+        <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="LOAD_TRANSFER_GENERIC" layerId="0" />
+    </location>
+    <location name="LOC_pickup_2" positionX="3300" positionY="-9000" positionZ="0" locked="false" type="Pickup">
+        <link point="pickup_2" />
+        <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC" />
+        <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="LOAD_TRANSFER_GENERIC" layerId="0" />
+    </location>
+    <location name="LOC_pickup_3" positionX="3300" positionY="-13000" positionZ="0" locked="false" type="Pickup">
+        <link point="pickup_3" />
+        <property name="tcs:defaultLocationSymbol" value="LOAD_TRANSFER_GENERIC" />
+        <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="LOAD_TRANSFER_GENERIC" layerId="0" />
+    </location>
+    <location name="LOC_init_25" positionX="19000" positionY="-19700" positionZ="0" locked="false" type="Recharge">
+        <link point="init_25" />
         <property name="tcs:defaultLocationSymbol" value="RECHARGE_GENERIC" />
         <locationLayout labelOffsetX="-10" labelOffsetY="-20" locationRepresentation="RECHARGE_GENERIC" layerId="0" />
     </location>

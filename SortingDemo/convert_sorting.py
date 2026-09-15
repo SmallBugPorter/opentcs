@@ -29,8 +29,8 @@ def main():
     rotation = {
         'loopback:rotationEnabled': settings.get('rotation.enabled', 'true'),
         'loopback:maxAngularVelocity': settings.get('rotation.maxVelocityDegPerSec', '90'),
-        'loopback:maxAngularAcceleration': settings.get('rotation.maxAccelerationDegPerSec2', '90'),
-        'loopback:maxAngularDeceleration': settings.get('rotation.maxDecelerationDegPerSec2', '90'),
+        'loopback:maxAngularAcceleration': settings.get('rotation.maxAccelerationDegPerSec2', '180'),
+        'loopback:maxAngularDeceleration': settings.get('rotation.maxDecelerationDegPerSec2', '180'),
     }
     for key, value in rotation.items():
         if key != 'loopback:rotationEnabled' and (not math.isfinite(float(value)) or float(value) <= 0):
@@ -94,8 +94,8 @@ def main():
             'loopback:loadOperation': 'Load cargo',
             'loopback:unloadOperation': 'Unload cargo',
             'loopback:operatingTime': '1000',
-            'loopback:acceleration': '500',
-            'loopback:deceleration': '-500',
+            'loopback:acceleration': '1000',
+            'loopback:deceleration': '-1000',
             **rotation,
         }.items():
             prop(vehicle, key, value)
