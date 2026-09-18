@@ -130,4 +130,18 @@ public class EdgeMappingTest {
     assertThat(edge.getStartNodeId(), is(source.getName()));
     assertThat(edge.getEndNodeId(), is(dest.getName()));
   }
+
+  @Test
+  public void version21CarriesReverseDirectionInBaseAndHorizon() {
+    vehicle = vehicle.withProperty("vda5050:version", "2.1");
+    Step step = new Step(path, source, dest, Vehicle.Orientation.BACKWARD, 0, 1);
+    Edge base = EdgeMapping.toBaseEdge(step, vehicle, List.of());
+    Edge horizon = EdgeMapping.toHorizonEdge(step, vehicle, List.of());
+    assertThat(base.getOrientation(), is(Math.PI));
+    assertThat(horizon.getOrientation(), is(Math.PI));
+    assertThat(base.getOrientationType(), is("TANGENTIAL"));
+    assertThat(horizon.getOrientationType(), is("TANGENTIAL"));
+    assertThat(horizon.isReleased(), is(false));
+  }
+
 }

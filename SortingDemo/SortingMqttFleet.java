@@ -134,7 +134,9 @@ class SortingMqttFleet {
         for(int i=0;i<VEHICLES.size();i++) {
           var v=VEHICLES.get(i);
           if(CLIENTS.get(i).isConnected()) v.tick(.1); // Freeze on disconnect; preserve allocated base.
-          if(ticks[0]%10==0) {v.publish();v.save(RUNTIME.resolve(v.name+".properties"),fingerprint);}
+          // Pose updates should be smoother than the durable checkpoint cadence.
+          if(ticks[0]%2==0) v.publish();
+          if(ticks[0]%10==0) v.save(RUNTIME.resolve(v.name+".properties"),fingerprint);
         }
         ticks[0]++;
       } catch(Exception e) {fail(e);}

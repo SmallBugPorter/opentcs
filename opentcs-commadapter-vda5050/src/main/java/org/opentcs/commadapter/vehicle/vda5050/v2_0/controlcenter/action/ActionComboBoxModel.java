@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 package org.opentcs.commadapter.vehicle.vda5050.v2_0.controlcenter.action;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.ComboBoxModel;
@@ -20,6 +21,7 @@ import org.opentcs.commadapter.vehicle.vda5050.v2_0.action.StopCharging;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.action.StopPause;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.action.WaitForTrigger;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.common.Action;
+import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.common.ActionParameter;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.common.BlockingType;
 
 /**
@@ -35,6 +37,34 @@ public class ActionComboBoxModel
    */
   private static final Map<String, Action> ACTION_TEMPLATES = new TreeMap<>(
       Map.ofEntries(
+          Map.entry(
+              "downloadMap", new Action("downloadMap", "", BlockingType.NONE)
+                  .setActionParameters(
+                      List.of(
+                          new ActionParameter("mapId", ""),
+                          new ActionParameter("mapVersion", ""), new ActionParameter(
+                              "mapDownloadLink", ""
+                          )
+                      )
+                  )
+          ),
+          Map.entry(
+              "enableMap", new Action("enableMap", "", BlockingType.NONE)
+                  .setActionParameters(
+                      List.of(
+                          new ActionParameter("mapId", ""), new ActionParameter("mapVersion", "")
+                      )
+                  )
+          ),
+          Map.entry(
+              "deleteMap", new Action("deleteMap", "", BlockingType.NONE)
+                  .setActionParameters(
+                      List.of(
+                          new ActionParameter("mapId", ""), new ActionParameter("mapVersion", "")
+                      )
+                  )
+          ),
+          Map.entry("factsheetRequest", new Action("factsheetRequest", "", BlockingType.NONE)),
           Map.entry(CancelOrder.ACTION_TYPE, new CancelOrder("", BlockingType.NONE)),
           Map.entry(DetectObject.ACTION_TYPE, new DetectObject("", BlockingType.NONE, "")),
           Map.entry(

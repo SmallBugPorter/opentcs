@@ -77,7 +77,9 @@ public class CommAdapterFactory
 
   private MessageValidator createMessageValidator(Vehicle vehicle) {
     if (getPropertyBoolean(PROPKEY_VEHICLE_VALIDATE_INCOMING_MESSAGES, vehicle).orElse(true)) {
-      return new MessageValidator();
+      return new MessageValidator(
+          vehicle.getProperty(ObjectProperties.PROPKEY_VEHICLE_VERSION).strip()
+      );
     }
     else {
       return MessageValidator.ACCEPTING_ALL;

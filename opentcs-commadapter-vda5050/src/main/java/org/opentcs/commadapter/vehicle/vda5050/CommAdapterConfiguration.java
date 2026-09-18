@@ -24,7 +24,8 @@ public interface CommAdapterConfiguration {
       type = "List of VDA5050 version numbers",
       description = {
           "Set to a list of VDA5050 specification versions for which to enable the vehicle driver.",
-          "Valid versions to be used here are: `1.1`, `2.0`. Set to an empty string to disable it.",
+          "Valid versions to be used here are: `1.1`, `2.0`, `2.1`. "
+              + "Set to an empty string to disable it.",
           "When disabled, the kernel will not use the driver at all, even if vehicles are "
               + "configured for it."
       },

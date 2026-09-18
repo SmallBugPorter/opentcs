@@ -64,7 +64,7 @@ SortingDemo/simulation.sh start
 
 ```bash
 # 先启动 Broker，再在另一终端启动原版 Kernel
-docker compose -f deploy-server/compose.yaml up -d mosquitto
+docker compose -f docker/compose.yaml up -d mosquitto
 # cd build/install/opentcs/opentcs-kernel && sh startKernel.sh
 SortingDemo/mqtt-vehicles.sh start
 SortingDemo/simulation.sh start
@@ -163,7 +163,7 @@ SortingDemo/simulation.sh check
 SortingDemo/mqtt-vehicles.sh verify
 ```
 
-`deploy-server/deploy-map/Sorting.xml` 已同步为当前包含 `init_25` 的分拣地图，与 `SortingDemo/Sorting.xml` 一致。之前部署目录中不含 `init_25` 的旧图已备份到 `runtime/before-25-vehicles-1789464240/deployment-Sorting.xml`。
+`docker/deploy-map/Sorting.xml` 已同步为当前包含 `init_25` 的分拣地图，与 `SortingDemo/Sorting.xml` 一致。之前部署目录中不含 `init_25` 的旧图已备份到 `runtime/before-25-vehicles-1789464240/deployment-Sorting.xml`。
 
 ## 构建目录与备份
 

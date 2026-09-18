@@ -6,9 +6,6 @@ import static java.util.Objects.requireNonNull;
 import static org.opentcs.commadapter.vehicle.vda5050.common.PropertyExtractions.getProperty;
 import static org.opentcs.commadapter.vehicle.vda5050.common.PropertyExtractions.getPropertyInteger;
 import static org.opentcs.commadapter.vehicle.vda5050.common.PropertyExtractions.getPropertyLong;
-import static org.opentcs.commadapter.vehicle.vda5050.v2_0.MqttSetting.VERSION_MAJOR;
-import static org.opentcs.commadapter.vehicle.vda5050.v2_0.MqttSetting.VERSION_MINOR;
-import static org.opentcs.commadapter.vehicle.vda5050.v2_0.MqttSetting.VERSION_PATCH;
 import static org.opentcs.commadapter.vehicle.vda5050.v2_0.ObjectProperties.PROPKEY_VEHICLE_ERRORS_FATAL;
 import static org.opentcs.commadapter.vehicle.vda5050.v2_0.ObjectProperties.PROPKEY_VEHICLE_ERRORS_WARNING;
 import static org.opentcs.commadapter.vehicle.vda5050.v2_0.ObjectProperties.PROPKEY_VEHICLE_INFORMATION_DEBUG;
@@ -128,6 +125,8 @@ public class CommAdapterImpl
    * Validates messages against JSON schemas.
    */
   private final MessageValidator messageValidator;
+  private final String protocolVersion;
+  private final MapPreparation mapPreparation;
   /**
    * Checks whether incoming messages should be accepted.
    */
@@ -207,6 +206,8 @@ public class CommAdapterImpl
             .orElse(DestinationOperations.CHARGE),
         kernelExecutor
     );
+    this.protocolVersion = vehicle.getProperty(ObjectProperties.PROPKEY_VEHICLE_VERSION).strip()
+        + ".0";
     this.mqttSetting = requireNonNull(mqttSetting, "mqttSetting");
     this.messageValidator = requireNonNull(messageValidator, "messageValidator");
     this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
@@ -241,6 +242,7 @@ public class CommAdapterImpl
         getPropertyInteger(PROPKEY_VEHICLE_MAX_IGNORED_REJECTIONS, vehicle).orElse(0)
     );
 
+    mapPreparation = new MapPreparation(vehicle, messageResponseMatcher::enqueueAction);
     getProcessModel().setTopicPrefix(mqttSetting.topicNamePrefix());
 
     this.isActionExecutable = new ExecutableActionsTagsPredicate(vehicle);
@@ -384,11 +386,12 @@ public class CommAdapterImpl
 
   @Override
   public boolean canAcceptNextCommand() {
-    return super.canAcceptNextCommand() && distanceInAdvanceController.canAcceptNextCommand(
-        Stream
-            .concat(getUnsentCommands().stream(), getSentCommands().stream())
-            .collect(Collectors.toList())
-    );
+    return mapPreparation.isReady() && super.canAcceptNextCommand() && distanceInAdvanceController
+        .canAcceptNextCommand(
+            Stream
+                .concat(getUnsentCommands().stream(), getSentCommands().stream())
+                .collect(Collectors.toList())
+        );
   }
 
   @Override
@@ -416,6 +419,11 @@ public class CommAdapterImpl
       reason = "Vehicle does not seem to be connected";
     }
 
+    if (canProcess && !mapPreparation.isReady()) {
+      canProcess = false;
+      reason = "Map/position not ready: " + mapPreparation.getStatus();
+    }
+
     for (String operation : operations) {
       if (!isStandardOperation(operation)
           && !operation.equals(getRechargeOperation())
@@ -441,6 +449,7 @@ public class CommAdapterImpl
       VehicleCommAdapterMessage message
   ) {
     switch (message.getType()) {
+      case MapPreparation.PREPARE_MESSAGE -> getExecutor().execute(mapPreparation::retry);
       case CommAdapterMessages.SEND_ORDER_TYPE -> handleSendOrder(message);
       case CommAdapterMessages.SEND_INSTANT_ACTION_TYPE -> handleSendInstantAction(message);
       case CommAdapterMessages.EXTEND_DEVIATION_ONCE_TYPE -> handleExtendDeviationOnce();
@@ -477,6 +486,7 @@ public class CommAdapterImpl
 
     getExecutor().execute(() -> {
       incomingMessageFilter.reset();
+      mapPreparation.disconnected();
       getProcessModel().setBrokerConnected(false);
       getProcessModel().setCommAdapterConnected(false);
       getProcessModel().setVehicleIdle(true);
@@ -526,7 +536,24 @@ public class CommAdapterImpl
       }
     }
     else if (Objects.equals(message.getTopic(), mqttSetting.factsheetTopicName())) {
-      LOG.info("Received factsheet from vehicle, ignoring it.");
+      try {
+        messageValidator.validate(
+            message.getMessage(), com.fasterxml.jackson.databind.JsonNode.class
+        );
+        com.fasterxml.jackson.databind.JsonNode factsheet = jsonBinder.fromJson(
+            message.getMessage(), com.fasterxml.jackson.databind.JsonNode.class
+        );
+        if (protocolVersion.equals(factsheet.path("version").asText())
+            && mqttSetting.vehicleManufacturer().equals(factsheet.path("manufacturer").asText())
+            && mqttSetting.vehicleSerialNumber().equals(factsheet.path("serialNumber").asText())) {
+          getExecutor().execute(
+              () -> getProcessModel().setProperty("vda5050:factsheet", message.getMessage())
+          );
+        }
+      }
+      catch (IllegalArgumentException ex) {
+        LOG.warn("{}: Invalid factsheet received", getName(), ex);
+      }
     }
     else {
       LOG.warn(
@@ -553,7 +580,7 @@ public class CommAdapterImpl
     LOG.debug("{}: Received a new visualization message: {}", getName(), vis);
     getProcessModel().setVehicleIdle(false);
 
-    if (!incomingMessageFilter.accept(vis)) {
+    if (!matchesIdentity(vis) || !incomingMessageFilter.accept(vis)) {
       LOG.warn("Discarding unacceptable visualization message: {}", vis);
       return;
     }
@@ -568,7 +595,8 @@ public class CommAdapterImpl
     }
     lastVisualizationMessageTimestamp = now;
 
-    if (vis.getAgvPosition() != null) {
+    if (mapPreparation.isReady() && vis.getAgvPosition() != null
+        && Boolean.TRUE.equals(vis.getAgvPosition().isPositionInitialized())) {
       processVehiclePosition(vis.getAgvPosition());
     }
     getProcessModel().setCurrentVisualization(vis);
@@ -578,7 +606,7 @@ public class CommAdapterImpl
     LOG.debug("{}: Received a new connection message: {}", getName(), message);
     getProcessModel().setVehicleIdle(false);
 
-    if (!incomingMessageFilter.accept(message)) {
+    if (!matchesIdentity(message) || !incomingMessageFilter.accept(message)) {
       LOG.warn("Discarding unacceptable connection message: {}", message);
       return;
     }
@@ -586,6 +614,7 @@ public class CommAdapterImpl
     if (message.getConnectionState() == ConnectionState.OFFLINE
         || message.getConnectionState() == ConnectionState.CONNECTIONBROKEN) {
       getProcessModel().setCommAdapterConnected(false);
+      mapPreparation.disconnected();
       getProcessModel().setState(Vehicle.State.UNKNOWN);
     }
     else if (message.getConnectionState() == ConnectionState.ONLINE) {
@@ -599,12 +628,18 @@ public class CommAdapterImpl
     LOG.debug("{}: Received a new state message: {}", getName(), state);
     getProcessModel().setVehicleIdle(false);
 
-    if (!incomingMessageFilter.accept(state)) {
+    if (!matchesIdentity(state) || !incomingMessageFilter.accept(state)) {
       LOG.warn("Discarding unacceptable state message: {}", state);
       return;
     }
 
     messageResponseMatcher.onStateMessage(state);
+
+    mapPreparation.onState(state);
+    getProcessModel().setProperty(MapPreparation.PREPARATION_STATUS, mapPreparation.getStatus());
+    if (state.getMaps() != null) {
+      getProcessModel().setProperty("vda5050:maps", jsonBinder.toJson(state.getMaps()));
+    }
 
     // Update the vehicle's current state and remember the old one.
     getProcessModel().setPreviousState(getProcessModel().getCurrentState());
@@ -638,19 +673,25 @@ public class CommAdapterImpl
       }
     }
 
-    if (state.getAgvPosition() != null) {
+    if (mapPreparation.isReady() && state.getAgvPosition() != null
+        && Boolean.TRUE.equals(state.getAgvPosition().isPositionInitialized())) {
       processVehiclePosition(state.getAgvPosition());
     }
 
-    if (state.getLastNodeId() != null && !state.getLastNodeId().isBlank()) {
+    if (mapPreparation.isReady() && state.getLastNodeId() != null && !state.getLastNodeId()
+        .isBlank()) {
       String newVehiclePosition = state.getLastNodeId();
       if (!Objects.equals(newVehiclePosition, getProcessModel().getPosition())) {
         LOG.debug("{}: Vehicle is now at point {}", getName(), newVehiclePosition);
         getProcessModel().setPosition(newVehiclePosition);
       }
     }
-    else if (state.getAgvPosition() != null) {
+    else if (mapPreparation.isReady() && state.getAgvPosition() != null) {
       getProcessModel().positionResolutionRequested(getProcessModel().getPose());
+    }
+
+    if (!mapPreparation.isReady()) {
+      getProcessModel().setPosition(null);
     }
 
     getProcessModel().setLoadHandlingDevices(toLoadHandlingDevices(state));
@@ -753,6 +794,12 @@ public class CommAdapterImpl
     }
   }
 
+  private boolean matchesIdentity(Header message) {
+    return protocolVersion.equals(message.getVersion())
+        && mqttSetting.vehicleManufacturer().equals(message.getManufacturer())
+        && mqttSetting.vehicleSerialNumber().equals(message.getSerialNumber());
+  }
+
   private void processVehiclePosition(AgvPosition position) {
     getProcessModel().setPose(
         new Pose(
@@ -772,6 +819,13 @@ public class CommAdapterImpl
    * @param order the order to send.
    */
   public void sendOrder(Order order) {
+    if (!mapPreparation.isReady()) {
+      LOG.warn(
+          "{}: Refusing order before map/localization is ready: {}", getName(), mapPreparation
+              .getStatus()
+      );
+      return;
+    }
     sendMessage(order, mqttSetting.orderTopicName(), mqttSetting.orderTopicQos());
     getProcessModel().setLastOrderSent(order);
   }
@@ -798,7 +852,7 @@ public class CommAdapterImpl
     // set header for message object
     messageObject.setHeaderId(headerId);
     messageObject.setTimestamp(Instant.now());
-    messageObject.setVersion(VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH);
+    messageObject.setVersion(protocolVersion);
     messageObject.setManufacturer(mqttSetting.vehicleManufacturer());
     messageObject.setSerialNumber(mqttSetting.vehicleSerialNumber());
     try {

@@ -19,14 +19,14 @@ bash ./gradlew installDist
 
 ```bash
 cd /home/lebi/opentcs_ws/opentcs
-docker compose -f deploy-server/compose.yaml up -d mosquitto
-docker compose -f deploy-server/compose.yaml ps mosquitto
+docker compose -f docker/compose.yaml up -d mosquitto
+docker compose -f docker/compose.yaml ps mosquitto
 ```
 
 确认 Broker 显示为运行状态。如果需要地图 HTTP 服务，再执行：
 
 ```bash
-docker compose -f deploy-server/compose.yaml up -d map-server
+docker compose -f docker/compose.yaml up -d map-server
 ```
 
 ### 2. 启动 Kernel（独立终端，保持打开）
@@ -123,13 +123,13 @@ SortingDemo/mqtt-vehicles.sh stop
 
 ```bash
 cd /home/lebi/opentcs_ws/opentcs
-docker compose -f deploy-server/compose.yaml stop mosquitto
+docker compose -f docker/compose.yaml stop mosquitto
 ```
 
 如果地图 HTTP 服务也不再需要：
 
 ```bash
-docker compose -f deploy-server/compose.yaml stop map-server
+docker compose -f docker/compose.yaml stop map-server
 ```
 
 ## 只暂停派单，不关闭 Kernel

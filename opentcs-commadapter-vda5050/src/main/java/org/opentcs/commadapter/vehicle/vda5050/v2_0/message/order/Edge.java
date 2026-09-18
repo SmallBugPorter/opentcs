@@ -85,6 +85,11 @@ public class Edge
    */
   private Double orientation;
   /**
+   * Optional reference frame for orientation: GLOBAL or TANGENTIAL.
+   */
+  private String orientationType;
+
+  /**
    * [Optional] Sets direction at junctions for line-guided vehicles, to be defined initially
    * (vehicle-individual).
    * <p>
@@ -148,6 +153,15 @@ public class Edge
     this.startNodeId = requireNonNull(startNodeId, "startNodeId");
     this.endNodeId = requireNonNull(endNodeId, "endNodeId");
     this.actions = requireNonNull(actions, "actions");
+  }
+
+  public String getOrientationType() {
+    return orientationType;
+  }
+
+  public Edge setOrientationType(String orientationType) {
+    this.orientationType = orientationType;
+    return this;
   }
 
   public String getEdgeId() {

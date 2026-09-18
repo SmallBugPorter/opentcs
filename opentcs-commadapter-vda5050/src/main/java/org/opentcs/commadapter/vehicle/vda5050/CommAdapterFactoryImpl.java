@@ -37,6 +37,7 @@ public class CommAdapterFactoryImpl
    * Configuration ID and factory map key for 2.0.
    */
   private static final String VER_STRING_2_0 = "2.0";
+  private static final String VER_STRING_2_1 = "2.1";
   /**
    * The version-specific factories.
    */
@@ -77,6 +78,16 @@ public class CommAdapterFactoryImpl
       LOG.info("VDA5050 1.1 communication adapter disabled by configuration.");
       factories.put(VER_STRING_1_1, new DisabledVda5050CommAdapterFactory());
     }
+
+    factories.put(
+        VER_STRING_2_1,
+        enabledVersions.contains(VER_STRING_2_1)
+            ? commAdapterFactory2dot0 : new DisabledVda5050CommAdapterFactory()
+    );
+    LOG.info(
+        "VDA5050 2.1 communication adapter enabled: {}",
+        enabledVersions.contains(VER_STRING_2_1)
+    );
 
     if (enabledVersions.contains(VER_STRING_2_0)) {
       LOG.info("VDA5050 2.0 communication adapter enabled.");
@@ -120,18 +131,20 @@ public class CommAdapterFactoryImpl
   public boolean providesAdapterFor(Vehicle vehicle) {
     requireNonNull(vehicle, "vehicle");
 
-    return factories.values().stream().anyMatch(factory -> factory.providesAdapterFor(vehicle));
+    return factoryFor(vehicle).providesAdapterFor(vehicle);
   }
 
   @Override
   public VehicleCommAdapter getAdapterFor(Vehicle vehicle) {
     requireNonNull(vehicle, "vehicle");
 
-    return List.of(VER_STRING_2_0, VER_STRING_1_1).stream()
-        .map(version -> factories.get(version))
-        .filter(factory -> factory.providesAdapterFor(vehicle))
-        .map(factory -> factory.getAdapterFor(vehicle))
-        .findFirst()
-        .orElse(null);
+    return factoryFor(vehicle).getAdapterFor(vehicle);
+  }
+
+  private Vda5050CommAdapterFactory factoryFor(Vehicle vehicle) {
+    String version = vehicle.getProperty("vda5050:version");
+    return factories.getOrDefault(
+        version == null ? "" : version.strip(), new DisabledVda5050CommAdapterFactory()
+    );
   }
 }

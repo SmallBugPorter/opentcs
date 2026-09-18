@@ -391,6 +391,7 @@ public class OrderMapper {
 
     return EdgeMapping.toHorizonEdge(
         step,
+        vehicle,
         ActionsMapping.mapPropertyActions(step.getPath()).stream()
             .filter(actionFilter)
             .map(propertyAction -> ActionsMapping.fromPropertyAction(vehicle, propertyAction))

@@ -5,7 +5,7 @@
 ## 地图下载 HTTP 服务
 
 Nginx 将部署目录内的 `deploy-map/` 只读挂载为网站根目录，通过 HTTP 提供地图文件，无需认证。
-当前地图路径为 `/home/lebi/opentcs_ws/opentcs/deploy-server/deploy-map/`。
+当前地图路径为 `/home/lebi/opentcs_ws/opentcs/docker/deploy-map/`。
 
 - 地图目录：`http://<服务器IP>:8080/`
 - 当前地图：`http://<服务器IP>:8080/Sorting.xml`
@@ -57,12 +57,13 @@ Mosquitto 配置（包含原有 `passwords` 文件），或把 `source` 改为�
 不会应用 Compose 文件中的路径变更。迁移完成后，明确指定新配置文件并重建容器：
 
 ```bash
-docker compose -p deploy-server -f /新路径/deploy-server/compose.yaml config
-docker compose -p deploy-server -f /新路径/deploy-server/compose.yaml up -d --force-recreate
+docker compose -p deploy-server -f /新路径/docker/compose.yaml config
+docker compose -p deploy-server -f /新路径/docker/compose.yaml up -d --force-recreate
 docker inspect deploy-server-map-server-1 deploy-server-mosquitto-1 --format '{{.Name}} {{json .Mounts}}'
 ```
 
-保持项目名 `deploy-server` 可以复用原有 `deploy-server_mosquitto-data` 数据卷。
+目录名为 `docker`；Compose 已通过 `name: deploy-server` 固定现有项目名，
+以复用原有容器和 `deploy-server_mosquitto-data` 数据卷。无需手动传入 `-p`。
 确认实际挂载路径和服务正常后，再处理旧目录。不要使用 `down -v`，以免删除 MQTT 持久化数据。
 
 ## 常用命令

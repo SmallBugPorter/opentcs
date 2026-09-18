@@ -9,7 +9,6 @@ import static org.opentcs.commadapter.vehicle.vda5050.v2_0.ObjectProperties.PROP
 import static org.opentcs.commadapter.vehicle.vda5050.v2_0.ObjectProperties.PROPKEY_VEHICLE_TOPIC_PREFIX;
 import static org.opentcs.commadapter.vehicle.vda5050.v2_0.ObjectProperties.PROPKEY_VEHICLE_VERSION;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import org.opentcs.data.model.Vehicle;
@@ -31,11 +30,10 @@ public class VehicleHasRequiredProperties
   public boolean test(Vehicle vehicle) {
     requireNonNull(vehicle, "vehicle");
 
-    return Objects.equals(
+    return java.util.Set.of("2.0", "2.1").contains(
         Optional.ofNullable(vehicle.getProperty(PROPKEY_VEHICLE_VERSION))
             .map(String::strip)
-            .orElse(null),
-        "2.0"
+            .orElse("")
     )
         && (vehicle.getProperty(PROPKEY_VEHICLE_TOPIC_PREFIX) != null
             || vehicle.getProperty(PROPKEY_VEHICLE_INTERFACE_NAME) != null)

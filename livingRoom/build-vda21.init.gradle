@@ -1,0 +1,6 @@
+// Build a separate distribution; leave the currently running installation intact.
+gradle.projectsEvaluated {
+  gradle.rootProject.tasks.named('installDist') {
+    destinationDir = new File(gradle.rootProject.buildDir, 'install/opentcs-vda21')
+  }
+}

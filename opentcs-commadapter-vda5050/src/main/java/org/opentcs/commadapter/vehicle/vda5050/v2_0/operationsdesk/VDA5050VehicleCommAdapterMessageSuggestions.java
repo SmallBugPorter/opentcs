@@ -69,6 +69,7 @@ public class VDA5050VehicleCommAdapterMessageSuggestions
         new ParameterSuggestion(CommAdapterMessages.SEND_ORDER_PARAM_EDGE)
     );
     addTypeSuggestion(CommAdapterMessages.EXTEND_DEVIATION_ONCE_TYPE);
+    addTypeSuggestion("prepareMap");
   }
 
   @Override

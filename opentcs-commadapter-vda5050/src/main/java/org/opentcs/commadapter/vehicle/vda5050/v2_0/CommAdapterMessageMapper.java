@@ -109,7 +109,7 @@ public class CommAdapterMessageMapper {
     );
     Node destinationNode = createNode(
         destinationNodeName.get(),
-        1
+        2
     );
     boolean actionRequested = mapValueExtractor.extractString(
         SEND_ORDER_PARAM_DESTINATION_NODE_ACTION_TYPE,
@@ -243,7 +243,7 @@ public class CommAdapterMessageMapper {
   private Edge createEdge(String pathName, String startNodeId, String endNodeId) {
     return new Edge(
         pathName,
-        0L,
+        1L,
         true,
         startNodeId,
         endNodeId,

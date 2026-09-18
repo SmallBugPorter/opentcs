@@ -102,12 +102,12 @@ class CommAdapterMessageMapperTest {
               .extracting(Node::getNodeId, Node::getSequenceId, Node::isReleased)
               .containsExactly(
                   tuple("source-node", 0L, true),
-                  tuple("destination-node", 1L, true)
+                  tuple("destination-node", 2L, true)
               );
           assertThat(order.getEdges())
               .hasSize(1)
               .extracting(Edge::getEdgeId, Edge::getSequenceId, Edge::isReleased)
-              .containsExactly(tuple("edge", 0L, true));
+              .containsExactly(tuple("edge", 1L, true));
 
           assertThat(order.getNodes().getLast().getActions()).hasSize(1);
           Action destinationAction = order.getNodes().getLast().getActions().getFirst();

@@ -59,6 +59,12 @@ public class ModelEditorPropertySuggestions
     keySuggestions.add(PROPKEY_VEHICLE_INTERFACE_NAME);
     keySuggestions.add(PROPKEY_VEHICLE_MANUFACTURER);
     keySuggestions.add(PROPKEY_VEHICLE_MAP_ID);
+    keySuggestions.add("vda5050:version");
+    keySuggestions.add("vda5050:mapVersion");
+    keySuggestions.add("vda5050:mapDownloadLink");
+    keySuggestions.add("vda5050:mapHash");
+    keySuggestions.add("vda5050:autoPrepareMap");
+    valueSuggestions.add("2.1");
     keySuggestions.add(PROPKEY_VEHICLE_MAX_STEPS_BASE);
     keySuggestions.add(PROPKEY_VEHICLE_MAX_STEPS_HORIZON);
     keySuggestions.add(PROPKEY_VEHICLE_MIN_VISU_INTERVAL);

@@ -13,7 +13,7 @@ import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.State;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.visualization.Visualization;
 
 /**
- * A {@link JsonValidator} for VDA5050 1.1 messages.
+ * A {@link JsonValidator} for VDA5050 2.0/2.1 messages.
  */
 public class MessageValidator
     extends
@@ -31,30 +31,57 @@ public class MessageValidator
    */
   public MessageValidator()
       throws IllegalArgumentException {
+    this("2.0");
+  }
+
+  public MessageValidator(String version) {
     super(
         Map.of(
             Connection.class,
             new InputStreamReader(
-                Connection.class.getResourceAsStream(Connection.JSON_SCHEMA_PATH)
+                Connection.class.getResourceAsStream(
+                    schemaPath(Connection.JSON_SCHEMA_PATH, version)
+                )
             ),
             InstantActions.class,
             new InputStreamReader(
-                InstantActions.class.getResourceAsStream(InstantActions.JSON_SCHEMA_PATH)
+                InstantActions.class.getResourceAsStream(
+                    schemaPath(InstantActions.JSON_SCHEMA_PATH, version)
+                )
             ),
             Order.class,
             new InputStreamReader(
-                Order.class.getResourceAsStream(Order.JSON_SCHEMA_PATH)
+                Order.class.getResourceAsStream(schemaPath(Order.JSON_SCHEMA_PATH, version))
             ),
             State.class,
             new InputStreamReader(
-                State.class.getResourceAsStream(State.JSON_SCHEMA_PATH)
+                State.class.getResourceAsStream(schemaPath(State.JSON_SCHEMA_PATH, version))
             ),
             Visualization.class,
             new InputStreamReader(
-                Visualization.class.getResourceAsStream(Visualization.JSON_SCHEMA_PATH)
+                Visualization.class.getResourceAsStream(
+                    schemaPath(Visualization.JSON_SCHEMA_PATH, version)
+                )
+            ),
+            com.fasterxml.jackson.databind.JsonNode.class,
+            new InputStreamReader(
+                MessageValidator.class.getResourceAsStream(
+                    schemaPath(
+                        "/org/opentcs/commadapter/vehicle/vda5050/"
+                            + "v2_0/schemas/factsheet.schema.json",
+                        version
+                    )
+                )
             )
         )
     );
+  }
+
+  private static String schemaPath(String path, String version) {
+    if (!java.util.Set.of("2.0", "2.1").contains(version)) {
+      throw new IllegalArgumentException("Unsupported VDA5050 version: " + version);
+    }
+    return "2.1".equals(version) ? path.replace("/v2_0/", "/v2_1/") : path;
   }
 
   /**

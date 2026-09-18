@@ -61,6 +61,7 @@ public class EdgeMapping {
     edge.setOrientation(edgeOrientation(step));
     edge.setRotationAllowed(rotationAllowed(step));
 
+    applyVersionOrientation(edge, step, vehicle);
     return edge;
   }
 
@@ -89,6 +90,23 @@ public class EdgeMapping {
     edge.setRotationAllowed(rotationAllowed(step));
 
     return edge;
+  }
+
+  public static Edge toHorizonEdge(Route.Step step, Vehicle vehicle, List<Action> actions) {
+    Edge edge = toHorizonEdge(step, actions);
+    applyVersionOrientation(edge, step, vehicle);
+    return edge;
+  }
+
+  private static void applyVersionOrientation(Edge edge, Route.Step step, Vehicle vehicle) {
+    if ("2.1".equals(vehicle.getProperty("vda5050:version"))) {
+      edge.setOrientationType("TANGENTIAL");
+      if (edge.getOrientation() == null) {
+        edge.setOrientation(
+            step.getVehicleOrientation() == Vehicle.Orientation.BACKWARD ? Math.PI : 0.0
+        );
+      }
+    }
   }
 
   @Nonnull

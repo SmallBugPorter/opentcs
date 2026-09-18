@@ -36,6 +36,7 @@ public class State
    * {@code orderId} is available.
    */
   private String orderId;
+  private List<MapState> maps;
   /**
    * Order update identification to identify that an order update has been accepted by the AGV.
    * <p>
@@ -325,6 +326,15 @@ public class State
       String lastNodeId
   ) {
     this.lastNodeId = requireNonNull(lastNodeId, "lastNodeId");
+    return this;
+  }
+
+  public List<MapState> getMaps() {
+    return maps;
+  }
+
+  public State setMaps(List<MapState> maps) {
+    this.maps = maps;
     return this;
   }
 
