@@ -9,7 +9,7 @@ services:
       - "8080:80"
     volumes:
       - type: bind
-        source: ./deploy-map
+        source: ./map
         target: /usr/share/nginx/html
         read_only: true
         bind:

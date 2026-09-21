@@ -24,9 +24,7 @@ docker compose logs -f map-server
 在本目录执行以下命令创建账号，按提示输入约定的 admin 密码：
 
 ```bash
-docker compose run --rm --no-deps --user "$(id -u):$(id -g)" \
-  -v "$PWD/mosquitto/config:/setup" \
-  mosquitto mosquitto_passwd -c /setup/passwords admin
+docker compose run --rm --no-deps --user "$(id -u):$(id -g)" -v "$PWD/mosquitto/config:/setup" mosquitto mosquitto_passwd -c /setup/passwords admin
 chmod 600 mosquitto/config/passwords
 docker compose up -d
 ```
