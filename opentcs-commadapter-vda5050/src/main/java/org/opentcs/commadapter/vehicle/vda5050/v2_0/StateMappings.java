@@ -45,7 +45,8 @@ public class StateMappings {
     requireNonNull(state, "state");
 
     for (ErrorEntry error : state.getErrors()) {
-      if (error.getErrorLevel() == ErrorLevel.FATAL) {
+      if (error.getErrorLevel() == ErrorLevel.FATAL || error.getErrorLevel()
+          == ErrorLevel.CRITICAL) {
         return Vehicle.State.ERROR;
       }
     }
@@ -193,7 +194,11 @@ public class StateMappings {
 
   private static boolean isOrderRejectionWarning(ErrorEntry error) {
     return switch (error.getErrorType()) {
-      case VALIDATION_ERROR, NO_ROUTE_ERROR, ORDER_ERROR, ORDER_UPDATE_ERROR -> true;
+      case VALIDATION_ERROR, NO_ROUTE_ERROR, ORDER_ERROR, ORDER_UPDATE_ERROR,
+           "VALIDATION_FAILURE", "INVALID_ORDER_ACTION", "UNSUPPORTED_PARAMETER",
+           "NO_ROUTE_TO_TARGET", "OTHER_ORDER_ACTIVE",
+           "START_NODE_OUT_OF_RANGE", "MOBILE_ROBOT_NOT_AVAILABLE", "UNKNOWN_MAP_ID",
+           "OUTDATED_ORDER_UPDATE", "ORDER_UPDATE_FOLLOWING_CANCEL", "INSUFFICIENT_MEMORY" -> true;
       default -> false;
     };
   }

@@ -82,6 +82,7 @@ public class IncomingMessageFilter {
         reset();
 
         return true;
+      case HIBERNATING:
       case OFFLINE:
         if (message.getHeaderId() <= headerRecordConnection.lastSeenHeaderId
             && !message.getTimestamp().isAfter(headerRecordConnection.lastSeenTimestamp)) {

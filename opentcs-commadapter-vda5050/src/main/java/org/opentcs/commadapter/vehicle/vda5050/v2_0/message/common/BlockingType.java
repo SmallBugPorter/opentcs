@@ -24,5 +24,7 @@ public enum BlockingType {
    * Action must not be executed in parallel with other actions. Vehicle must not drive.
    */
   @JsonProperty(value = "HARD")
-  HARD;
+  HARD,
+  /** Blocks parallel actions, but permits driving (3.0). */
+  SINGLE;
 }

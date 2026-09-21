@@ -10,7 +10,7 @@ import org.opentcs.configuration.ConfigurationPrefix;
 import org.opentcs.data.model.Vehicle.IntegrationLevel;
 
 /**
- * Provides methods to configure the version 1.1 communication adapter.
+ * Provides methods to configure the VDA5050 communication adapters.
  */
 @ConfigurationPrefix(CommAdapterConfiguration.PREFIX)
 public interface CommAdapterConfiguration {
@@ -24,7 +24,8 @@ public interface CommAdapterConfiguration {
       type = "List of VDA5050 version numbers",
       description = {
           "Set to a list of VDA5050 specification versions for which to enable the vehicle driver.",
-          "Valid versions to be used here are: `1.1`, `2.0`. Set to an empty string to disable it.",
+          "Valid versions to be used here are: `1.1`, `2.0`, `2.1`, `3.0`.",
+          "Set to an empty string to disable it.",
           "When disabled, the kernel will not use the driver at all, even if vehicles are "
               + "configured for it."
       },
@@ -100,6 +101,10 @@ public interface CommAdapterConfiguration {
    * Vehicle operating modes.
    */
   enum ConfigOperatingMode {
+    /** The mobile robot is starting up (VDA5050 3.0). */
+    STARTUP,
+    /** An operator has intervened (VDA5050 3.0). */
+    INTERVENED,
     /**
      * Teach-in mode.
      */

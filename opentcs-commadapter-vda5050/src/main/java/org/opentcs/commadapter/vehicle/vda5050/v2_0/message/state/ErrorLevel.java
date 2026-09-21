@@ -14,6 +14,10 @@ public enum ErrorLevel {
    */
   @JsonProperty(value = "WARNING")
   WARNING,
+  /** Immediate attention required; the current order may continue (3.0). */
+  URGENT,
+  /** The current order cannot continue (3.0). */
+  CRITICAL,
   /**
    * AGV is not in running condition, user intervention required. (E.g. laser scanner is
    * contaminated.)

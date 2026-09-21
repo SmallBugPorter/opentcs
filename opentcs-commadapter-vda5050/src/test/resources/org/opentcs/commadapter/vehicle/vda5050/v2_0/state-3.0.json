@@ -1,0 +1,12 @@
+{
+  "headerId": 1, "timestamp": "2026-03-19T10:00:01Z", "version": "3.0.0",
+  "manufacturer": "test", "serialNumber": "001",
+  "orderId": "order-1", "orderUpdateId": 0,
+  "lastNodeId": "P1", "lastNodeSequenceId": 0,
+  "nodeStates": [], "edgeStates": [], "driving": false,
+  "actionStates": [], "instantActionStates": [],
+  "powerSupply": {"stateOfCharge": 75, "charging": false},
+  "operatingMode": "AUTOMATIC", "errors": [],
+  "safetyState": {"activeEmergencyStop": "NONE", "fieldViolation": false},
+  "mobileRobotPosition": {"x": 1.5, "y": 2.0, "theta": 0.0, "mapId": "map", "localized": true}
+}

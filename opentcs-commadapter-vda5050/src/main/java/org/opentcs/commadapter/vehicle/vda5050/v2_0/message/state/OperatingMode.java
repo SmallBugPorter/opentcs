@@ -16,6 +16,10 @@ public enum OperatingMode {
    */
   @JsonProperty(value = "AUTOMATIC")
   AUTOMATIC,
+  /** Mobile robot is starting up (3.0). */
+  STARTUP,
+  /** An operator has intervened (3.0). */
+  INTERVENED,
   /**
    * AGV is under control of the master control.
    * <p>

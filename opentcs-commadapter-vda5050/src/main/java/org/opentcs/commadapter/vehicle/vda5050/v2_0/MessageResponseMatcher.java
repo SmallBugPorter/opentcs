@@ -60,6 +60,7 @@ public class MessageResponseMatcher {
    * Flag indicating whether this comm adapter may currently send requests to the vehicle.
    * If false, all enqueued requests will stay in the queue until the flag becomes true.
    */
+  private boolean intervened;
   private boolean sendingAllowed;
 
   /**
@@ -131,7 +132,8 @@ public class MessageResponseMatcher {
   ) {
     requireNonNull(state, "state");
 
-    sendingAllowed = state.getOperatingMode() == OperatingMode.AUTOMATIC
+    intervened = state.getOperatingMode() == OperatingMode.INTERVENED;
+    sendingAllowed = intervened || state.getOperatingMode() == OperatingMode.AUTOMATIC
         || state.getOperatingMode() == OperatingMode.SEMIAUTOMATIC;
 
     Object currentRequest = requests.peek();
@@ -240,6 +242,11 @@ public class MessageResponseMatcher {
     }
 
     Object request = requests.peek();
+    if (intervened && request instanceof InstantActions actions
+        && actions.getActions().stream()
+            .anyMatch(action -> !CancelOrder.ACTION_TYPE.equals(action.getActionType()))) {
+      return;
+    }
     LOG.debug("{}: Sending order to comm adapter: {}", commAdapterName, request);
     if (request instanceof OrderAssociation) {
       sendOrderCallback.accept(((OrderAssociation) request).getOrder());

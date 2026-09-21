@@ -22,6 +22,9 @@ Vehicles supporting VDA5050 can be integrated with openTCS without additional pr
 For other vehicles, it is usually necessary to at least create and integrate a vehicle driver (called _communication adapter_ in openTCS-speak) that translates between the abstract interface of the openTCS kernel and the communication protocol your vehicle understands.
 Depending on your needs, it might also be necessary to adapt algorithms or add project-specific strategies.
 
+This checkout also supports VDA5050 2.1 and 3.0 for node/edge route execution.
+See link:./opentcs-commadapter-vda5050/PROTOCOL-SUPPORT.md[protocol support and configuration] for the implemented scope and remaining optional features.
+
 == Getting started
 
 To get started with openTCS, please refer to the user's guide, the developer's guide and the API documentation.

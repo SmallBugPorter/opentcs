@@ -38,5 +38,7 @@ public enum ActionStatus {
    * Failed.
    */
   @JsonProperty(value = "FAILED")
-  FAILED;
+  FAILED,
+  /** Action can be retried and has not reached a terminal state (3.0). */
+  RETRIABLE;
 }

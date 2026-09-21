@@ -78,13 +78,15 @@ public class CommAdapterFactoryImpl
       factories.put(VER_STRING_1_1, new DisabledVda5050CommAdapterFactory());
     }
 
-    if (enabledVersions.contains(VER_STRING_2_0)) {
-      LOG.info("VDA5050 2.0 communication adapter enabled.");
-      factories.put(VER_STRING_2_0, commAdapterFactory2dot0);
-    }
-    else {
-      LOG.info("VDA5050 2.0 communication adapter disabled by configuration.");
-      factories.put(VER_STRING_2_0, new DisabledVda5050CommAdapterFactory());
+    for (String version : List.of(VER_STRING_2_0, "2.1", "3.0")) {
+      if (enabledVersions.contains(version)) {
+        LOG.info("VDA5050 {} communication adapter enabled.", version);
+        factories.put(version, commAdapterFactory2dot0);
+      }
+      else {
+        LOG.info("VDA5050 {} communication adapter disabled by configuration.", version);
+        factories.put(version, new DisabledVda5050CommAdapterFactory());
+      }
     }
   }
 
@@ -120,18 +122,21 @@ public class CommAdapterFactoryImpl
   public boolean providesAdapterFor(Vehicle vehicle) {
     requireNonNull(vehicle, "vehicle");
 
-    return factories.values().stream().anyMatch(factory -> factory.providesAdapterFor(vehicle));
+    Vda5050CommAdapterFactory factory = factoryFor(vehicle);
+    return factory != null && factory.providesAdapterFor(vehicle);
   }
 
   @Override
   public VehicleCommAdapter getAdapterFor(Vehicle vehicle) {
     requireNonNull(vehicle, "vehicle");
 
-    return List.of(VER_STRING_2_0, VER_STRING_1_1).stream()
-        .map(version -> factories.get(version))
-        .filter(factory -> factory.providesAdapterFor(vehicle))
-        .map(factory -> factory.getAdapterFor(vehicle))
-        .findFirst()
-        .orElse(null);
+    Vda5050CommAdapterFactory factory = factoryFor(vehicle);
+    return factory == null || !factory.providesAdapterFor(vehicle)
+        ? null : factory.getAdapterFor(vehicle);
+  }
+
+  private Vda5050CommAdapterFactory factoryFor(Vehicle vehicle) {
+    String version = vehicle.getProperty("vda5050:version");
+    return version == null ? null : factories.get(version.strip());
   }
 }

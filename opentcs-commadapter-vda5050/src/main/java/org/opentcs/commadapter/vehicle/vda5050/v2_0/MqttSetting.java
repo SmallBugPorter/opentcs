@@ -124,7 +124,9 @@ public record MqttSetting(
           }
           return Optional.of(
               interfaceName
-                  + "/" + "v" + VERSION_MAJOR
+                  + "/" + "v" + ProtocolVersion.fromConfiguration(
+                      vehicle.getProperty(ObjectProperties.PROPKEY_VEHICLE_VERSION)
+                  ).orElse(ProtocolVersion.V2_0).major()
                   + "/" + vehicleManufacturer
                   + "/" + vehicleSerialNumber
           );

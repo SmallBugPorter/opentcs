@@ -15,6 +15,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.common.Action;
+import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.order.Corridor;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.order.Edge;
 import org.opentcs.data.model.Vehicle;
 import org.opentcs.data.order.Route;
@@ -60,6 +61,7 @@ public class EdgeMapping {
     edge.setMaxSpeed(maxSpeed(step));
     edge.setOrientation(edgeOrientation(step));
     edge.setRotationAllowed(rotationAllowed(step));
+    edge.setCorridor(corridor(step));
 
     return edge;
   }
@@ -87,8 +89,24 @@ public class EdgeMapping {
     edge.setMaxSpeed(maxSpeed(step));
     edge.setOrientation(edgeOrientation(step));
     edge.setRotationAllowed(rotationAllowed(step));
+    edge.setCorridor(corridor(step));
 
     return edge;
+  }
+
+  private static Corridor corridor(Route.Step step) {
+    String left = step.getPath().getProperty("vda5050:corridor.leftWidth");
+    String right = step.getPath().getProperty("vda5050:corridor.rightWidth");
+    if (left == null && right == null) {
+      return null;
+    }
+    if (left == null || right == null) {
+      throw new IllegalArgumentException("Both corridor widths must be configured");
+    }
+    return new Corridor(
+        Double.parseDouble(left), Double.parseDouble(right),
+        step.getPath().getProperty("vda5050:corridor.corridorReferencePoint")
+    );
   }
 
   @Nonnull

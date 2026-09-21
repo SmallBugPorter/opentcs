@@ -6,9 +6,6 @@ import static java.util.Objects.requireNonNull;
 import static org.opentcs.commadapter.vehicle.vda5050.common.PropertyExtractions.getProperty;
 import static org.opentcs.commadapter.vehicle.vda5050.common.PropertyExtractions.getPropertyInteger;
 import static org.opentcs.commadapter.vehicle.vda5050.common.PropertyExtractions.getPropertyLong;
-import static org.opentcs.commadapter.vehicle.vda5050.v2_0.MqttSetting.VERSION_MAJOR;
-import static org.opentcs.commadapter.vehicle.vda5050.v2_0.MqttSetting.VERSION_MINOR;
-import static org.opentcs.commadapter.vehicle.vda5050.v2_0.MqttSetting.VERSION_PATCH;
 import static org.opentcs.commadapter.vehicle.vda5050.v2_0.ObjectProperties.PROPKEY_VEHICLE_ERRORS_FATAL;
 import static org.opentcs.commadapter.vehicle.vda5050.v2_0.ObjectProperties.PROPKEY_VEHICLE_ERRORS_WARNING;
 import static org.opentcs.commadapter.vehicle.vda5050.v2_0.ObjectProperties.PROPKEY_VEHICLE_INFORMATION_DEBUG;
@@ -128,6 +125,9 @@ public class CommAdapterImpl
    * Validates messages against JSON schemas.
    */
   private final MessageValidator messageValidator;
+  private final MessageValidator outgoingMessageValidator;
+  private final ProtocolVersion protocolVersion;
+  private final WireMessageMapper wireMessageMapper;
   /**
    * Checks whether incoming messages should be accepted.
    */
@@ -208,6 +208,11 @@ public class CommAdapterImpl
         kernelExecutor
     );
     this.mqttSetting = requireNonNull(mqttSetting, "mqttSetting");
+    this.protocolVersion = ProtocolVersion.fromConfiguration(
+        vehicle.getProperty(ObjectProperties.PROPKEY_VEHICLE_VERSION)
+    ).orElseThrow();
+    this.wireMessageMapper = new WireMessageMapper(protocolVersion);
+    this.outgoingMessageValidator = new MessageValidator(protocolVersion);
     this.messageValidator = requireNonNull(messageValidator, "messageValidator");
     this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
     this.minVisualizationInterval
@@ -226,7 +231,7 @@ public class CommAdapterImpl
     this.jsonBinder.setFilter(
         componentsFactory.createUnsupportedPropertiesFilter(
             vehicle, unsupportedPropertiesExtractor
-        )
+        ).andThen(wireMessageMapper::toWire)
     );
     distanceInAdvanceController = componentsFactory.createDistanceInAdvanceController(
         getPropertyLong(PROPKEY_VEHICLE_MAX_DISTANCE_IN_ADVANCE, vehicle).orElse(Long.MAX_VALUE)
@@ -498,7 +503,9 @@ public class CommAdapterImpl
     if (Objects.equals(message.getTopic(), mqttSetting.connectionTopicName())) {
       try {
         messageValidator.validate(message.getMessage(), Connection.class);
-        Connection connectionMessage = jsonBinder.fromJson(message.getMessage(), Connection.class);
+        Connection connectionMessage = jsonBinder.fromJson(
+            wireMessageMapper.fromWire(message.getMessage()), Connection.class
+        );
         getExecutor().execute(() -> onConnectionMessage(connectionMessage));
       }
       catch (IllegalArgumentException ex) {
@@ -508,7 +515,9 @@ public class CommAdapterImpl
     else if (Objects.equals(message.getTopic(), mqttSetting.stateTopicName())) {
       try {
         messageValidator.validate(message.getMessage(), State.class);
-        State stateMessage = jsonBinder.fromJson(message.getMessage(), State.class);
+        State stateMessage = jsonBinder.fromJson(
+            wireMessageMapper.fromWire(message.getMessage()), State.class
+        );
         getExecutor().execute(() -> onStateMessage(stateMessage));
       }
       catch (IllegalArgumentException ex) {
@@ -518,7 +527,9 @@ public class CommAdapterImpl
     else if (Objects.equals(message.getTopic(), mqttSetting.visualizationTopicName())) {
       try {
         messageValidator.validate(message.getMessage(), Visualization.class);
-        Visualization vis = jsonBinder.fromJson(message.getMessage(), Visualization.class);
+        Visualization vis = jsonBinder.fromJson(
+            wireMessageMapper.fromWire(message.getMessage()), Visualization.class
+        );
         getExecutor().execute(() -> onVisualizationMessage(vis));
       }
       catch (IllegalArgumentException ex) {
@@ -584,6 +595,7 @@ public class CommAdapterImpl
     }
 
     if (message.getConnectionState() == ConnectionState.OFFLINE
+        || message.getConnectionState() == ConnectionState.HIBERNATING
         || message.getConnectionState() == ConnectionState.CONNECTIONBROKEN) {
       getProcessModel().setCommAdapterConnected(false);
       getProcessModel().setState(Vehicle.State.UNKNOWN);
@@ -655,6 +667,12 @@ public class CommAdapterImpl
 
     getProcessModel().setLoadHandlingDevices(toLoadHandlingDevices(state));
     getProcessModel().setEnergyLevel(state.getBatteryState().getBatteryCharge().intValue());
+    getProcessModel().setProperty(
+        "vda5050:errors.critical", StateMappings.toErrorPropertyValue(state, ErrorLevel.CRITICAL)
+    );
+    getProcessModel().setProperty(
+        "vda5050:errors.urgent", StateMappings.toErrorPropertyValue(state, ErrorLevel.URGENT)
+    );
     getProcessModel().setProperty(
         PROPKEY_VEHICLE_ERRORS_FATAL,
         StateMappings.toErrorPropertyValue(state, ErrorLevel.FATAL)
@@ -748,6 +766,10 @@ public class CommAdapterImpl
         return ConfigOperatingMode.SERVICE;
       case TEACHIN:
         return ConfigOperatingMode.TEACHIN;
+      case STARTUP:
+        return ConfigOperatingMode.STARTUP;
+      case INTERVENED:
+        return ConfigOperatingMode.INTERVENED;
       default:
         throw new IllegalArgumentException("Unmapped operating mode " + opMode.name());
     }
@@ -782,6 +804,21 @@ public class CommAdapterImpl
    * @param instantActions the action to send.
    */
   public void sendInstantAction(InstantActions instantActions) {
+    if (protocolVersion == ProtocolVersion.V3_0
+        && getProcessModel().getCurrentConnection().getConnectionState()
+            == ConnectionState.HIBERNATING
+        && instantActions.getActions().stream()
+            .anyMatch(action -> !"stopHibernation".equals(action.getActionType()))) {
+      LOG.warn("{}: Only stopHibernation is permitted while hibernating", getName());
+      return;
+    }
+    if (protocolVersion == ProtocolVersion.V3_0
+        && getProcessModel().getCurrentState().getOperatingMode() == OperatingMode.INTERVENED
+        && instantActions.getActions().stream()
+            .anyMatch(action -> !"cancelOrder".equals(action.getActionType()))) {
+      LOG.warn("{}: Only cancelOrder is permitted in INTERVENED mode", getName());
+      return;
+    }
     sendMessage(
         instantActions,
         mqttSetting.instantActionsTopicName(),
@@ -798,12 +835,12 @@ public class CommAdapterImpl
     // set header for message object
     messageObject.setHeaderId(headerId);
     messageObject.setTimestamp(Instant.now());
-    messageObject.setVersion(VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH);
+    messageObject.setVersion(protocolVersion.wireVersion());
     messageObject.setManufacturer(mqttSetting.vehicleManufacturer());
     messageObject.setSerialNumber(mqttSetting.vehicleSerialNumber());
     try {
       String message = jsonBinder.toJson(messageObject);
-      messageValidator.validate(message, messageObject.getClass());
+      outgoingMessageValidator.validate(message, messageObject.getClass());
       LOG.debug("{}: Sending message to '{}': {}", getName(), topic, message);
       clientManager.publish(topic, qos, message, false);
     }

@@ -64,6 +64,11 @@ public class ModelEditorPropertySuggestions
     keySuggestions.add(PROPKEY_VEHICLE_MIN_VISU_INTERVAL);
     keySuggestions.add(PROPKEY_VEHICLE_RECHARGE_OPERATION);
     keySuggestions.add(PROPKEY_VEHICLE_SERIAL_NUMBER);
+    keySuggestions.add("vda5050:version");
+    keySuggestions.add("vda5050:corridor.leftWidth");
+    keySuggestions.add("vda5050:corridor.rightWidth");
+    keySuggestions.add("vda5050:corridor.corridorReferencePoint");
+    valueSuggestions.addAll(Set.of("2.0", "2.1", "3.0"));
     keySuggestions.add(PROPKEY_PATH_ORIENTATION_FORWARD);
     keySuggestions.add(PROPKEY_PATH_ORIENTATION_REVERSE);
     keySuggestions.add(PROPKEY_PATH_ROTATION_ALLOWED_FORWARD);
@@ -194,6 +199,9 @@ public class ModelEditorPropertySuggestions
 
   @Override
   public Set<String> getValueSuggestionsFor(String key) {
+    if ("vda5050:version".equals(key)) {
+      return Set.of("2.0", "2.1", "3.0");
+    }
     if (key.startsWith(PROPKEY_CUSTOM_ACTION_PREFIX)
         || key.startsWith(PROPKEY_CUSTOM_DEST_ACTION_PREFIX)) {
       if (key.endsWith(".when")) {

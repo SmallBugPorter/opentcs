@@ -40,7 +40,10 @@ public class VDA5050VehicleCommAdapterMessageSuggestions
         new ParameterSuggestion(CommAdapterMessages.SEND_INSTANT_ACTION_PARAM_ACTION_DESCRIPTION),
         new ParameterSuggestion(
             CommAdapterMessages.SEND_INSTANT_ACTION_PARAM_BLOCKING_TYPE,
-            Set.of(BlockingType.NONE.name(), BlockingType.SOFT.name(), BlockingType.HARD.name())
+            Set.of(
+                BlockingType.NONE.name(), BlockingType.SOFT.name(),
+                BlockingType.HARD.name(), BlockingType.SINGLE.name()
+            )
         ),
         new ParameterSuggestion(
             CommAdapterMessages.SEND_INSTANT_ACTION_PARAM_PARAMETER_PREFIX
@@ -58,7 +61,10 @@ public class VDA5050VehicleCommAdapterMessageSuggestions
         ),
         new ParameterSuggestion(
             CommAdapterMessages.SEND_ORDER_PARAM_DESTINATION_NODE_ACTION_BLOCKING_TYPE,
-            Set.of(BlockingType.NONE.name(), BlockingType.SOFT.name(), BlockingType.HARD.name())
+            Set.of(
+                BlockingType.NONE.name(), BlockingType.SOFT.name(),
+                BlockingType.HARD.name(), BlockingType.SINGLE.name()
+            )
         ),
         new ParameterSuggestion(CommAdapterMessages.SEND_ORDER_PARAM_DESTINATION_NODE_ACTION_ID),
         new ParameterSuggestion(CommAdapterMessages.SEND_ORDER_PARAM_DESTINATION_NODE_ACTION_TYPE),

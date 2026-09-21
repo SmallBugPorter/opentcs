@@ -14,6 +14,8 @@ public enum ConnectionState {
    */
   @JsonProperty(value = "ONLINE")
   ONLINE,
+  /** Connected, but not accepting orders until woken up (3.0). */
+  HIBERNATING,
   /**
    * Connection between AGV and broker has gone offline in a coordinated way.
    */

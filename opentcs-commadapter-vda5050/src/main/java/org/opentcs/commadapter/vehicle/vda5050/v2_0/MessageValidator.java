@@ -4,7 +4,13 @@ package org.opentcs.commadapter.vehicle.vda5050.v2_0;
 
 import jakarta.annotation.Nonnull;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.opentcs.commadapter.vehicle.vda5050.common.JsonValidator;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.connection.Connection;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.instantactions.InstantActions;
@@ -13,7 +19,7 @@ import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.State;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.visualization.Visualization;
 
 /**
- * A {@link JsonValidator} for VDA5050 1.1 messages.
+ * A {@link JsonValidator} for the selected VDA5050 wire protocol.
  */
 public class MessageValidator
     extends
@@ -31,30 +37,47 @@ public class MessageValidator
    */
   public MessageValidator()
       throws IllegalArgumentException {
+    this(ProtocolVersion.V2_0);
+  }
+
+  /**
+   * Creates a validator for a supported wire protocol.
+   *
+   * @param version The wire protocol version.
+   */
+  public MessageValidator(ProtocolVersion version) {
     super(
         Map.of(
-            Connection.class,
-            new InputStreamReader(
-                Connection.class.getResourceAsStream(Connection.JSON_SCHEMA_PATH)
-            ),
-            InstantActions.class,
-            new InputStreamReader(
-                InstantActions.class.getResourceAsStream(InstantActions.JSON_SCHEMA_PATH)
-            ),
-            Order.class,
-            new InputStreamReader(
-                Order.class.getResourceAsStream(Order.JSON_SCHEMA_PATH)
-            ),
-            State.class,
-            new InputStreamReader(
-                State.class.getResourceAsStream(State.JSON_SCHEMA_PATH)
-            ),
-            Visualization.class,
-            new InputStreamReader(
-                Visualization.class.getResourceAsStream(Visualization.JSON_SCHEMA_PATH)
-            )
+            Connection.class, schemaReader(version, "connection"),
+            InstantActions.class, schemaReader(version, "instantActions"),
+            Order.class, schemaReader(version, "order"),
+            State.class, schemaReader(version, "state"),
+            Visualization.class, schemaReader(version, "visualization")
         )
     );
+  }
+
+  private static Reader schemaReader(ProtocolVersion version, String topic) {
+    Reader reader = new InputStreamReader(
+        Objects.requireNonNull(
+            MessageValidator.class.getResourceAsStream(
+                version.schemaDirectory() + topic + ".schema.json"
+            )
+        ), StandardCharsets.UTF_8
+    );
+    if (version == ProtocolVersion.V2_0) {
+      return reader;
+    }
+    // The vendored schemas only use keywords with the same semantics in draft-07.
+    // Everit does not recognize the upstream 2020-12 dialect URI.
+    try (reader) {
+      JSONObject schema = new JSONObject(new JSONTokener(reader));
+      schema.put("$schema", "http://json-schema.org/draft-07/schema#");
+      return new StringReader(schema.toString());
+    }
+    catch (java.io.IOException exc) {
+      throw new IllegalArgumentException("Cannot read schema for " + topic, exc);
+    }
   }
 
   /**

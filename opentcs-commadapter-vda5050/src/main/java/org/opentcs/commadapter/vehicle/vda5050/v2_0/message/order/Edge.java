@@ -25,6 +25,8 @@ public class Edge
    * Unique edge identification.
    */
   private String edgeId;
+  /** Static driving corridor (VDA5050 2.1/3.0). */
+  private Corridor corridor;
   /**
    * Number to track the sequence of nodes and edges in an order and to simplify order updates.
    * <p>
@@ -309,6 +311,26 @@ public class Edge
 
   public Edge setLength(Double length) {
     this.length = length;
+    return this;
+  }
+
+  /**
+   * Returns the optional corridor.
+   *
+   * @return The corridor, or null.
+   */
+  public Corridor getCorridor() {
+    return corridor;
+  }
+
+  /**
+   * Sets a static driving corridor.
+   *
+   * @param corridor The corridor, or null.
+   * @return This edge.
+   */
+  public Edge setCorridor(Corridor corridor) {
+    this.corridor = corridor;
     return this;
   }
 
