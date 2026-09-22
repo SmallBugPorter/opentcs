@@ -77,16 +77,61 @@ Corridor fields are omitted for 2.0 vehicles sharing the same model.
 This is route-based protocol integration, not an implementation of every optional
 feature of VDA5050 3.0. The adapter does not implement free-navigation scheduling,
 zone-set storage, dynamic zone/edge release negotiation, planned/intermediate
-path conflict resolution, automatic map distribution or factsheet capability
+path conflict resolution or factsheet capability
 negotiation. It does not grant zone/edge release requests. Do not configure robot
 routes that require these negotiations with this adapter.
 
-Map download/enable/delete actions can be sent using the existing custom instant
+Map download/enable/delete actions can also be sent using the existing custom instant
 message mechanism; their state details are not exposed through dedicated UI
-panels. Factsheets are still ignored as in the existing 2.0 adapter. RETRIABLE
+panels. Opt-in automatic map preparation is described below. Factsheets are still ignored as in the existing 2.0 adapter. RETRIABLE
 states are retained but retry policy is not automated. Ellipse tolerances use
 circles derived from the existing openTCS radius; independent ellipse axes are
 not configurable. No real-robot interoperability certification is implied.
+
+## Automatic map preparation (2.1/3.0)
+
+Set these **vehicle properties**, upload the model and reattach/enable the adapter:
+
+```text
+vda5050:autoPrepareMap = true
+vda5050:mapId = living_room
+vda5050:mapVersion = 1
+vda5050:mapDownloadLink = http://192.168.4.4:8080/living_room.xml
+```
+
+An optional `vda5050:mapHash` is the XML file's 64-character SHA-256 hex digest.
+The HTTP server must be reachable from the vehicle. The adapter only sends the URL;
+the vehicle downloads and validates the file. HTTP credentials belong in the vehicle's
+configuration, not the URL. Missing/invalid configuration blocks dispatch and reports an error.
+Without `autoPrepareMap=true`, adapter behavior is unchanged.
+
+After ONLINE, the adapter waits for accepted state messages with a `maps` inventory.
+A missing inventory is not treated as an empty inventory. Before changing maps it requires
+an operational mode, empty node/edge queues, no unfinished foreign actions, and stationary
+velocity feedback (`vx` and `omega`, plus `vy` if supplied; absolute values <= 0.01) across
+at least 500 ms of state reception. Gaps over 2 seconds restart that stopped interval.
+The vehicle still performs its own fresh-feedback and stopped checks.
+
+- Missing target version: send `downloadMap` with string ID/version and URL/hash.
+- Cached target version: skip download and send `enableMap`.
+- Enabled target version: skip both actions.
+- Download/enable must report FINISHED **and** the corresponding inventory change before
+  proceeding. RUNNING is not completion. Wait for the target map's initialized position
+  before allowing route dispatch.
+
+The process-model property `vda5050:mapPreparation` reports `WAITING_FOR_STATE`,
+`WAITING_FOR_MAP_INVENTORY`, `WAITING_FOR_IDLE`, `DOWNLOADING`, `ENABLING`,
+`WAITING_FOR_LOCALIZATION`, `READY` or `FAILED: ...`. Changes are logged; failures also
+publish a user notification. Route dispatch (including custom sendOrder messages) is blocked
+until ready, and readiness expires after 2 seconds without an accepted state.
+
+Unacknowledged delivery is retried at most once per second using the same action ID.
+Once acknowledged, an action is not resent. FAILED or a 60-second action timeout stops
+preparation without repeated new downloads. Timeouts are evaluated on incoming states;
+absence of states keeps dispatch blocked. Reconnect the vehicle or disable/re-enable the
+adapter to retry with new IDs. Reconnection rechecks the inventory, so a vehicle restart
+with a cached but disabled map triggers enable only. Update the version when XML changes;
+this flow does not overwrite an immutable version or create the HTTP server.
 
 ## Schema provenance and validation
 

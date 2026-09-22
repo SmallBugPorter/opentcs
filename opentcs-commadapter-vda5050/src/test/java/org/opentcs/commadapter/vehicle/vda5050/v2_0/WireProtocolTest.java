@@ -142,6 +142,56 @@ class WireProtocolTest {
   }
 
   @ParameterizedTest
+  @EnumSource(value = ProtocolVersion.class, names = {"V2_1", "V3_0"})
+  void automaticMapPreparationBlocksOrdersUntilInventoryAndLocalizationAreReady(
+      ProtocolVersion version
+  )
+      throws Exception {
+    Vehicle vehicle = vehicle(version)
+        .withProperty("vda5050:autoPrepareMap", "true")
+        .withProperty("vda5050:mapId", "map")
+        .withProperty("vda5050:mapVersion", "1")
+        .withProperty("vda5050:mapDownloadLink", "http://localhost/map.xml");
+    MqttClientManager mqtt = mock(MqttClientManager.class);
+    CommAdapterImpl adapter = adapter(vehicle, mqtt);
+    String prefix = "uagv/v" + version.major() + "/test/001";
+    ObjectNode state = stateJson(version);
+    ObjectNode connection = mapper.createObjectNode();
+    for (String key : List.of("headerId", "timestamp", "version", "manufacturer", "serialNumber")) {
+      connection.set(key, state.get(key));
+    }
+    connection.put("connectionState", "ONLINE");
+    adapter.onIncomingMessage(new IncomingMessage(prefix + "/connection", connection.toString()));
+    Order order = new Order("next", 0L, List.of(new Node("P1", 0L, true, List.of())), List.of());
+    adapter.sendOrder(order);
+    verify(mqtt, never()).publish(eq(prefix + "/order"), any(), any(), eq(false));
+    assertThat(adapter.getProcessModel().getState()).isEqualTo(Vehicle.State.UNAVAILABLE);
+
+    state.putArray("maps").addObject().put("mapId", "map").put("mapVersion", "1")
+        .put("mapStatus", "ENABLED");
+    String position = version == ProtocolVersion.V3_0 ? "mobileRobotPosition" : "agvPosition";
+    String localized = version == ProtocolVersion.V3_0 ? "localized" : "positionInitialized";
+    state.withObject("/" + position).put(localized, false);
+    adapter.onIncomingMessage(new IncomingMessage(prefix + "/state", state.toString()));
+    assertThat(adapter.getProcessModel().getCurrentState().getMaps().getFirst().mapVersion())
+        .isEqualTo("1");
+    adapter.sendOrder(order);
+    verify(mqtt, never()).publish(eq(prefix + "/order"), any(), any(), eq(false));
+    state.put("headerId", 2);
+    state.withObject("/" + position).put(localized, true);
+    adapter.onIncomingMessage(new IncomingMessage(prefix + "/state", state.toString()));
+    adapter.sendOrder(order);
+    verify(mqtt).publish(eq(prefix + "/order"), any(), any(), eq(false));
+    assertThat(adapter.getProcessModel().getState()).isEqualTo(Vehicle.State.IDLE);
+    verify(mqtt, never()).publish(eq(prefix + "/instantActions"), any(), any(), eq(false));
+
+    connection.put("connectionState", "OFFLINE");
+    adapter.onIncomingMessage(new IncomingMessage(prefix + "/connection", connection.toString()));
+    adapter.sendOrder(order);
+    verify(mqtt).publish(eq(prefix + "/order"), any(), any(), eq(false));
+  }
+
+  @ParameterizedTest
   @EnumSource(ProtocolVersion.class)
   void disabledVersionsCannotLeakThroughSharedFactory(ProtocolVersion version) {
     CommAdapterConfiguration config = mock(CommAdapterConfiguration.class);

@@ -36,6 +36,8 @@ public class State
    * {@code orderId} is available.
    */
   private String orderId;
+  /** Map inventory reported by VDA5050 2.1/3.0 vehicles; null if not reported. */
+  private List<MapState> maps;
   /**
    * Order update identification to identify that an order update has been accepted by the AGV.
    * <p>
@@ -289,6 +291,26 @@ public class State
     this.safetyState = requireNonNull(safetyState, "safetyState");
   }
   // CHECKSTYLE:ON
+
+  /**
+   * Returns the map inventory, or null when the vehicle does not report it.
+   *
+   * @return The reported maps.
+   */
+  public List<MapState> getMaps() {
+    return maps;
+  }
+
+  /**
+   * Sets the optional map inventory.
+   *
+   * @param maps The reported maps, or null if absent.
+   * @return This state.
+   */
+  public State setMaps(List<MapState> maps) {
+    this.maps = maps;
+    return this;
+  }
 
   public String getOrderId() {
     return orderId;

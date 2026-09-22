@@ -93,6 +93,8 @@ public class CommAdapterImpl
    * Maps movement commands from openTCS to the telegrams sent to the attached vehicle.
    */
   private OrderMapper orderMapper;
+  private final MapPreparation mapPreparation;
+  private String reportedMapPreparationStatus;
   /**
    * Manages the client's connection to an MQTT broker.
    */
@@ -212,6 +214,9 @@ public class CommAdapterImpl
         vehicle.getProperty(ObjectProperties.PROPKEY_VEHICLE_VERSION)
     ).orElseThrow();
     this.wireMessageMapper = new WireMessageMapper(protocolVersion);
+    this.mapPreparation = new MapPreparation(
+        vehicle, protocolVersion, this::sendInstantAction, () -> System.nanoTime() / 1_000_000
+    );
     this.outgoingMessageValidator = new MessageValidator(protocolVersion);
     this.messageValidator = requireNonNull(messageValidator, "messageValidator");
     this.componentsFactory = requireNonNull(componentsFactory, "componentsFactory");
@@ -273,6 +278,8 @@ public class CommAdapterImpl
       return;
     }
 
+    mapPreparation.reset();
+    updateMapPreparationStatus();
     super.enable();
 
     clientManager.registerConnectionEventListener(this);
@@ -389,11 +396,12 @@ public class CommAdapterImpl
 
   @Override
   public boolean canAcceptNextCommand() {
-    return super.canAcceptNextCommand() && distanceInAdvanceController.canAcceptNextCommand(
-        Stream
-            .concat(getUnsentCommands().stream(), getSentCommands().stream())
-            .collect(Collectors.toList())
-    );
+    return mapPreparation.isReady() && super.canAcceptNextCommand() && distanceInAdvanceController
+        .canAcceptNextCommand(
+            Stream
+                .concat(getUnsentCommands().stream(), getSentCommands().stream())
+                .collect(Collectors.toList())
+        );
   }
 
   @Override
@@ -419,6 +427,11 @@ public class CommAdapterImpl
     if (canProcess && !isVehicleConnected()) {
       canProcess = false;
       reason = "Vehicle does not seem to be connected";
+    }
+
+    if (canProcess && !mapPreparation.isReady()) {
+      canProcess = false;
+      reason = "Map preparation: " + mapPreparation.status();
     }
 
     for (String operation : operations) {
@@ -482,6 +495,8 @@ public class CommAdapterImpl
 
     getExecutor().execute(() -> {
       incomingMessageFilter.reset();
+      mapPreparation.reset();
+      updateMapPreparationStatus();
       getProcessModel().setBrokerConnected(false);
       getProcessModel().setCommAdapterConnected(false);
       getProcessModel().setVehicleIdle(true);
@@ -594,6 +609,8 @@ public class CommAdapterImpl
       return;
     }
 
+    mapPreparation.reset();
+    updateMapPreparationStatus();
     if (message.getConnectionState() == ConnectionState.OFFLINE
         || message.getConnectionState() == ConnectionState.HIBERNATING
         || message.getConnectionState() == ConnectionState.CONNECTIONBROKEN) {
@@ -602,7 +619,9 @@ public class CommAdapterImpl
     }
     else if (message.getConnectionState() == ConnectionState.ONLINE) {
       getProcessModel().setCommAdapterConnected(true);
-      getProcessModel().setState(Vehicle.State.IDLE);
+      getProcessModel().setState(
+          mapPreparation.isEnabled() ? Vehicle.State.UNAVAILABLE : Vehicle.State.IDLE
+      );
     }
     getProcessModel().setCurrentConnection(message);
   }
@@ -616,6 +635,8 @@ public class CommAdapterImpl
       return;
     }
 
+    mapPreparation.onState(state);
+    updateMapPreparationStatus();
     messageResponseMatcher.onStateMessage(state);
 
     // Update the vehicle's current state and remember the old one.
@@ -693,7 +714,11 @@ public class CommAdapterImpl
         PROPKEY_VEHICLE_PAUSED,
         StateMappings.toPausedPropertyValue(state)
     );
-    getProcessModel().setState(toVehicleState(state));
+    Vehicle.State mappedState = toVehicleState(state);
+    getProcessModel().setState(
+        !mapPreparation.isReady() && mappedState == Vehicle.State.IDLE
+            ? Vehicle.State.UNAVAILABLE : mappedState
+    );
     getProcessModel().setBoundingBox(
         getProcessModel().getBoundingBox().withLength(
             toVehicleLength(state, vehicleLengthUnloaded, vehicleLengthLoaded)
@@ -703,6 +728,26 @@ public class CommAdapterImpl
     processVehicleOperatingMode(state);
 
     movementCommandManager.onStateMessage(state, this::onMovementCommandExecuted);
+  }
+
+  private void updateMapPreparationStatus() {
+    if (!mapPreparation.isEnabled()) {
+      return;
+    }
+    String status = mapPreparation.status();
+    if (!Objects.equals(status, reportedMapPreparationStatus)) {
+      reportedMapPreparationStatus = status;
+      LOG.info("{}: Map preparation: {}", getName(), status);
+      getProcessModel().setProperty("vda5050:mapPreparation", status);
+      if (status.startsWith("FAILED:")) {
+        getProcessModel().publishUserNotification(
+            new UserNotification(
+                getName(), "Map preparation " + status,
+                UserNotification.Level.IMPORTANT
+            )
+        );
+      }
+    }
   }
 
   private void onMovementCommandExecuted(
@@ -794,6 +839,13 @@ public class CommAdapterImpl
    * @param order the order to send.
    */
   public void sendOrder(Order order) {
+    if (!mapPreparation.isReady()) {
+      LOG.debug(
+          "{}: Order held until map preparation completes: {}", getName(),
+          mapPreparation.status()
+      );
+      return;
+    }
     sendMessage(order, mqttSetting.orderTopicName(), mqttSetting.orderTopicQos());
     getProcessModel().setLastOrderSent(order);
   }
