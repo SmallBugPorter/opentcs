@@ -141,7 +141,7 @@ public class MessageResponseMatcher {
       return;
     }
 
-    boolean rejected = updateRejectionState(state);
+    boolean rejected = updateRejectionState(state, currentRequest);
     boolean accepted = !rejected && requestAccepted(currentRequest, state);
     boolean complete = accepted && requestComplete(currentRequest, state);
 
@@ -156,6 +156,7 @@ public class MessageResponseMatcher {
     }
     else if (complete) {
       requests.poll();
+      consecutiveRejectionsCount = 0;
       if (currentRequest instanceof OrderAssociation orderAssociation) {
         LOG.debug("{}: Vehicle acknowledged order: {}", commAdapterName, orderAssociation);
         orderAcceptedCallback.accept(orderAssociation);
@@ -182,8 +183,13 @@ public class MessageResponseMatcher {
     }
   }
 
-  private boolean updateRejectionState(State state) {
-    if (StateMappings.vehicleRejectsOrder(state)) {
+  private boolean updateRejectionState(State state, Object request) {
+    Order order = request instanceof OrderAssociation association ? association.getOrder() : null;
+    if (StateMappings.vehicleRejectsOrder(
+        state,
+        order == null ? null : order.getOrderId(),
+        order == null ? null : order.getOrderUpdateId()
+    )) {
       consecutiveRejectionsCount++;
     }
     else {

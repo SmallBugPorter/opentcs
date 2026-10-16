@@ -37,6 +37,7 @@ import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.BatteryState;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.EStop;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.ErrorEntry;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.ErrorLevel;
+import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.ErrorReference;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.OperatingMode;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.SafetyState;
 import org.opentcs.commadapter.vehicle.vda5050.v2_0.message.state.State;
@@ -157,6 +158,80 @@ public class MessageResponseMatcherTest {
     messageResponseMatcher.enqueueAction(action);
 
     verify(sendInstantActionsCallback, never()).accept(action);
+  }
+
+  @Test
+  public void acknowledgeNewOrderAndSendUpdateDespiteOldOrderRejection() {
+    Order order = new Order("new-order", 0L, List.of(), List.of());
+    Order update = new Order("new-order", 1L, List.of(), List.of());
+    messageResponseMatcher.enqueueCommand(order, dummyCommand);
+    messageResponseMatcher.enqueueCommand(update, dummyCommand);
+
+    State state = stateAcceptingOrder(order).setErrors(
+        List.of(rejection("old-order", "0"))
+    );
+    messageResponseMatcher.onStateMessage(state);
+
+    verify(orderAcceptedCallback).accept(any());
+    verify(sendOrderCallback).accept(update);
+    assertThat(StateMappings.vehicleRejectsOrder(state), is(false));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"0", "2"})
+  public void ignoreRejectionForDifferentUpdate(String rejectedUpdate) {
+    Order update = new Order("order", 1L, List.of(), List.of());
+    messageResponseMatcher.enqueueCommand(update, dummyCommand);
+    messageResponseMatcher.onStateMessage(
+        stateAcceptingOrder(update).setErrors(List.of(rejection("order", rejectedUpdate)))
+    );
+    verify(orderAcceptedCallback).accept(any());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"1", "01", "invalid"})
+  public void honorRejectionForPendingUpdateEvenIfStateReflectsPreviousUpdate(String updateId) {
+    Order pending = new Order("order", 1L, List.of(), List.of());
+    messageResponseMatcher.enqueueCommand(pending, dummyCommand);
+    messageResponseMatcher.onStateMessage(
+        stateAcceptingOrder(new Order("order", 0L, List.of(), List.of()))
+            .setErrors(List.of(rejection("order", updateId)))
+    );
+    verify(sendOrderCallback, times(1)).accept(pending);
+    verify(orderAcceptedCallback, never()).accept(any());
+  }
+
+  @Test
+  public void honorRejectionWithOnlyOrderReference() {
+    Order pending = new Order("order", 1L, List.of(), List.of());
+    messageResponseMatcher.enqueueCommand(pending, dummyCommand);
+    messageResponseMatcher.onStateMessage(newState().setErrors(List.of(
+        new ErrorEntry(ORDER_ERROR, ErrorLevel.WARNING)
+            .setErrorReferences(List.of(new ErrorReference("orderId", "order")))
+    )));
+    verify(sendOrderCallback, times(1)).accept(pending);
+    verify(orderAcceptedCallback, never()).accept(any());
+  }
+
+  @Test
+  public void completeCancelDespiteScopedOrderRejection() {
+    InstantActions cancel = new InstantActions().setActions(
+        List.of(new Action(CancelOrder.ACTION_TYPE, "cancel", BlockingType.HARD))
+    );
+    Order next = new Order("new-order", 0L, List.of(), List.of());
+    messageResponseMatcher.enqueueAction(cancel);
+    messageResponseMatcher.enqueueCommand(next, dummyCommand);
+    messageResponseMatcher.onStateMessage(
+        stateCompletingInstantAction(cancel).setErrors(List.of(rejection("old-order", "0")))
+    );
+    verify(sendOrderCallback).accept(next);
+  }
+
+  private ErrorEntry rejection(String orderId, String updateId) {
+    return new ErrorEntry(ORDER_ERROR, ErrorLevel.WARNING).setErrorReferences(List.of(
+        new ErrorReference("orderId", orderId),
+        new ErrorReference("orderUpdateId", updateId)
+    ));
   }
 
   @ParameterizedTest

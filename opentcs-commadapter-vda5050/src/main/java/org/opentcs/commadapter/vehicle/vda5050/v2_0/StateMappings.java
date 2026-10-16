@@ -189,7 +189,48 @@ public class StateMappings {
    * @return Whether the vehicle rejects an order.
    */
   public static boolean vehicleRejectsOrder(State state) {
-    return state.getErrors().stream().anyMatch(StateMappings::isOrderRejectionWarning);
+    return vehicleRejectsOrder(state, state.getOrderId(), state.getOrderUpdateId());
+  }
+
+  /**
+   * Checks rejection references against the request being acknowledged, which may differ from
+   * the order reflected in the state. Missing references retain legacy rejection handling.
+   *
+   * @param state The vehicle state.
+   * @param orderId The requested order ID, or null for an instant action request.
+   * @param orderUpdateId The requested update ID, or null for an instant action request.
+   * @return Whether an applicable rejection was reported.
+   */
+  public static boolean vehicleRejectsOrder(State state, String orderId, Long orderUpdateId) {
+    return state.getErrors().stream()
+        .filter(StateMappings::isOrderRejectionWarning)
+        .anyMatch(error -> rejectionMatches(error, orderId, orderUpdateId));
+  }
+
+  private static boolean rejectionMatches(ErrorEntry error, String orderId, Long orderUpdateId) {
+    if (error.getErrorReferences() == null) {
+      return true;
+    }
+    for (var reference : error.getErrorReferences()) {
+      if ("orderId".equals(reference.getReferenceKey())
+          && !Objects.equals(orderId, reference.getReferenceValue())) {
+        return false;
+      }
+      if ("orderUpdateId".equals(reference.getReferenceKey())) {
+        if (orderUpdateId == null) {
+          return false;
+        }
+        try {
+          if (Long.parseLong(reference.getReferenceValue()) != orderUpdateId.longValue()) {
+            return false;
+          }
+        }
+        catch (NumberFormatException exc) {
+          // A malformed update reference cannot safely rule out a current rejection.
+        }
+      }
+    }
+    return true;
   }
 
   private static boolean isOrderRejectionWarning(ErrorEntry error) {
