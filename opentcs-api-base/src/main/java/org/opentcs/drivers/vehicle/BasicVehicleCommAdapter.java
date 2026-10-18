@@ -77,6 +77,10 @@ public abstract class BasicVehicleCommAdapter
    * been executed by it, yet.
    */
   private final Queue<MovementCommand> sentQueue = new LinkedBlockingQueue<>();
+  /**
+   * Details of the last acceptance check, retained without re-evaluating its conditions.
+   */
+  private String commandAcceptanceDiagnostics = "not checked";
 
   /**
    * Creates a new instance.
@@ -219,8 +223,18 @@ public abstract class BasicVehicleCommAdapter
   }
 
   @Override
-  public boolean canAcceptNextCommand() {
-    return (getUnsentCommands().size() + getSentCommands().size()) < getCommandsCapacity();
+  public synchronized boolean canAcceptNextCommand() {
+    int unsent = getUnsentCommands().size();
+    int sent = getSentCommands().size();
+    boolean capacityAvailable = unsent + sent < getCommandsCapacity();
+    commandAcceptanceDiagnostics = "queueCapacityAvailable=" + capacityAvailable
+        + ", unsent=" + unsent + ", sent=" + sent + ", capacity=" + getCommandsCapacity();
+    return capacityAvailable;
+  }
+
+  @Override
+  public synchronized String getCommandAcceptanceDiagnostics() {
+    return commandAcceptanceDiagnostics;
   }
 
   @Override
@@ -233,6 +247,13 @@ public abstract class BasicVehicleCommAdapter
     requireNonNull(newCommand, "newCommand");
 
     if (!canAcceptNextCommand()) {
+      LOG.warn(
+          "COMMAND_REJECTED vehicle={} order={} routeIndex={} target={} operation={} "
+              + "acceptance=[{}]",
+          getName(), newCommand.getTransportOrder().getName(), newCommand.getStep().getRouteIndex(),
+          newCommand.getStep().getDestinationPoint().getName(), newCommand.getOperation(),
+          getCommandAcceptanceDiagnostics()
+      );
       return false;
     }
 

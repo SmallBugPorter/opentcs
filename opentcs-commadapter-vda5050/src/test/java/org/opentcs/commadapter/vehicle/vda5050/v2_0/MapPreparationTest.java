@@ -101,10 +101,24 @@ class MapPreparationTest {
     state.getAgvPosition().setMapId("map");
     tick(200);
     assertThat(preparation.isReady()).isTrue();
+    clock.addAndGet(2000);
+    MapPreparation.Readiness fresh = preparation.readiness();
+    assertThat(fresh.ready()).isTrue();
+    assertThat(fresh.stateAgeMillis()).isEqualTo(2000);
+    clock.incrementAndGet();
+    MapPreparation.Readiness stale = preparation.readiness();
+    assertThat(stale.status()).isEqualTo("READY");
+    assertThat(stale.stateAgeMillis()).isEqualTo(2001);
+    assertThat(stale.ready()).isFalse();
+    // The saved snapshot must keep the actual decision even after another state arrives.
+    tick(1);
+    assertThat(preparation.isReady()).isTrue();
+    assertThat(stale.ready()).isFalse();
     clock.addAndGet(2001);
     assertThat(preparation.isReady()).isFalse();
     preparation.reset();
     assertThat(preparation.isReady()).isFalse();
+    assertThat(preparation.readiness().stateAgeMillis()).isEqualTo(-1);
   }
 
   @Test

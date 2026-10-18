@@ -13,6 +13,7 @@ import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
@@ -24,6 +25,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.opentcs.components.kernel.ResourceAllocationException;
 import org.opentcs.components.kernel.Scheduler;
@@ -32,6 +36,7 @@ import org.opentcs.components.kernel.services.InternalTransportOrderService;
 import org.opentcs.components.kernel.services.InternalVehicleService;
 import org.opentcs.components.kernel.services.NotificationService;
 import org.opentcs.customizations.ApplicationEventBus;
+import org.opentcs.customizations.kernel.KernelExecutor;
 import org.opentcs.data.ObjectUnknownException;
 import org.opentcs.data.TCSObjectEvent;
 import org.opentcs.data.TCSObjectReference;
@@ -144,6 +149,22 @@ public class DefaultVehicleController
    */
   private final CommandProcessingTracker commandProcessingTracker;
   /**
+   * Acceptance check retained across asynchronous allocation and peripheral interactions.
+   */
+  private String allocationAcceptanceDiagnostics = "no allocation check captured";
+  /**
+   * Retries run on the same executor as allocation callbacks and vehicle state updates.
+   */
+  private final ScheduledExecutorService kernelExecutor;
+  /**
+   * A command explicitly rejected by the adapter, with its resources still reserved.
+   */
+  private DeferredCommand deferredCommand;
+  /**
+   * Present only while waiting to retry an explicitly rejected command.
+   */
+  private ScheduledFuture<?> commandRetryTask;
+  /**
    * A transformer transforming movement commands.
    */
   private final MovementCommandTransformer movementCommandTransformer;
@@ -178,6 +199,7 @@ public class DefaultVehicleController
    * @param commandProcessingTracker Track processing of movement commands.
    * @param dataTransformerRegistry A registry for data transformer factories.
    * @param positionDeviationPolicyRegistry A registry for position deviation policies.
+   * @param kernelExecutor The executor for retrying temporarily rejected commands.
    */
   @Inject
   public DefaultVehicleController(
@@ -211,7 +233,10 @@ public class DefaultVehicleController
       @Nonnull
       VehicleDataTransformerRegistry dataTransformerRegistry,
       @Nonnull
-      PositionDeviationPolicyRegistry positionDeviationPolicyRegistry
+      PositionDeviationPolicyRegistry positionDeviationPolicyRegistry,
+      @Nonnull
+      @KernelExecutor
+      ScheduledExecutorService kernelExecutor
   ) {
     this.vehicle = requireNonNull(vehicle, "vehicle").getReference();
     this.commAdapter = requireNonNull(adapter, "adapter");
@@ -220,6 +245,7 @@ public class DefaultVehicleController
     this.notificationService = requireNonNull(notificationService, "notificationService");
     this.dispatcherService = requireNonNull(dispatcherService, "dispatcherService");
     this.scheduler = requireNonNull(scheduler, "scheduler");
+    this.kernelExecutor = requireNonNull(kernelExecutor, "kernelExecutor");
     this.eventBus = requireNonNull(eventBus, "eventBus");
     requireNonNull(componentsFactory, "componentsFactory");
     this.peripheralInteractor
@@ -288,6 +314,7 @@ public class DefaultVehicleController
       return;
     }
 
+    cancelCommandRetry();
     peripheralInteractor.terminate();
 
     commAdapter.getProcessModel().removePropertyChangeListener(this);
@@ -639,6 +666,7 @@ public class DefaultVehicleController
 
   private void clearCommandQueue() {
     synchronized (commAdapter) {
+      cancelCommandRetry();
       commAdapter.clearCommandQueue();
 
       Collection<Set<TCSResource<?>>> resourceToBeFreed
@@ -762,6 +790,10 @@ public class DefaultVehicleController
   }
 
   private void sendCommandOrStopSending(MovementCommand command) {
+    if (commandProcessingTracker.getSendingPendingCommand().orElse(null) != command
+        || deferredCommand != null) {
+      return;
+    }
     if (sendingCommandsAllowed) {
       sendCommand(command);
     }
@@ -781,16 +813,80 @@ public class DefaultVehicleController
 
     MovementCommand transformedCommand = movementCommandTransformer.apply(command);
     // Send the command to the communication adapter.
-    checkState(
-        commAdapter.enqueueCommand(transformedCommand),
-        "Comm adapter did not accept command"
-    );
+    boolean accepted;
+    synchronized (commAdapter) {
+      accepted = commAdapter.enqueueCommand(transformedCommand);
+      if (!accepted) {
+        LOG.warn(
+            "COMMAND_REJECTED_CONTEXT vehicle={} order={} routeIndex={} target={} pendingState={} "
+                + "beforeAllocation=[{}] atEnqueue=[{}]",
+            vehicle.getName(), command.getTransportOrder().getName(),
+            command.getStep().getRouteIndex(), command.getStep().getDestinationPoint().getName(),
+            commandProcessingTracker.getPendingCommandStateName(), allocationAcceptanceDiagnostics,
+            commAdapter.getCommandAcceptanceDiagnostics()
+        );
+      }
+    }
+    if (!accepted) {
+      DeferredCommand deferred = new DeferredCommand(command, transformedCommand);
+      deferredCommand = deferred;
+      commandRetryTask = kernelExecutor.scheduleWithFixedDelay(
+          () -> retryDeferredCommand(deferred), 500, 500, TimeUnit.MILLISECONDS
+      );
+      return;
+    }
+    commandAccepted(command, transformedCommand);
+  }
+
+  private void commandAccepted(MovementCommand command, MovementCommand transformedCommand) {
     transformedToOriginalCommands.put(transformedCommand, command);
     commandProcessingTracker.commandSent(command);
 
     // Check if the communication adapter has capacity for another command.
     if (canSendNextCommand()) {
       allocateForNextCommand();
+    }
+  }
+
+  private void retryDeferredCommand(DeferredCommand deferred) {
+    synchronized (commAdapter) {
+      // A cancelled callback may already have been queued. Never act on a newer order/retry.
+      if (deferredCommand != deferred) {
+        return;
+      }
+      if (!initialized || currentDriveOrder == null
+          || commandProcessingTracker.getSendingPendingCommand().orElse(null)
+              != deferred.original()) {
+        cancelCommandRetry();
+        return;
+      }
+      // Keep the existing reservation. Pre-movement interactions already succeeded, and must
+      // not be repeated. Pause/disable and unexpected-position restrictions still apply.
+      if (!sendingCommandsAllowed || !commAdapter.isEnabled()
+          || vehicleService.fetch(Vehicle.class, vehicle).map(Vehicle::isPaused).orElse(true)
+          || peripheralInteractor.isWaitingForMovementInteractionsToFinish()
+          || !commAdapter.canAcceptNextCommand()) {
+        return;
+      }
+      if (!commAdapter.enqueueCommand(deferred.transformed())) {
+        return;
+      }
+      cancelCommandRetry();
+      LOG.info(
+          "COMMAND_SEND_RESUMED vehicle={} order={} routeIndex={} target={}",
+          vehicle.getName(), deferred.original().getTransportOrder().getName(),
+          deferred.original().getStep().getRouteIndex(),
+          deferred.original().getStep().getDestinationPoint().getName()
+      );
+      commandAccepted(deferred.original(), deferred.transformed());
+    }
+  }
+
+  private void cancelCommandRetry() {
+    deferredCommand = null;
+    if (commandRetryTask != null) {
+      commandRetryTask.cancel(false);
+      commandRetryTask = null;
     }
   }
 
@@ -1146,7 +1242,18 @@ public class DefaultVehicleController
    * @return <code>true</code> if, and only if, we can send another command.
    */
   private boolean canSendNextCommand() {
-    if (!commAdapter.canAcceptNextCommand()) {
+    // This also covers a command waiting for its pre-movement interactions. It must be sent
+    // (or explicitly discarded) before another allocation can be requested.
+    if (commandProcessingTracker.getSendingPendingCommand().isPresent()) {
+      return false;
+    }
+    boolean canAccept;
+    String acceptanceDiagnostics;
+    synchronized (commAdapter) {
+      canAccept = commAdapter.canAcceptNextCommand();
+      acceptanceDiagnostics = commAdapter.getCommandAcceptanceDiagnostics();
+    }
+    if (!canAccept) {
       LOG.debug(
           "{}: Cannot send, comm adapter cannot accept any further commands.",
           vehicle.getName()
@@ -1187,6 +1294,12 @@ public class DefaultVehicleController
       );
       return false;
     }
+    MovementCommand nextCommand = commandProcessingTracker.getNextAllocationCommand().orElseThrow();
+    allocationAcceptanceDiagnostics = "checkedAt=" + Instant.now()
+        + ", order=" + nextCommand.getTransportOrder().getName()
+        + ", routeIndex=" + nextCommand.getStep().getRouteIndex()
+        + ", target=" + nextCommand.getStep().getDestinationPoint().getName()
+        + ", " + acceptanceDiagnostics;
     return true;
   }
 
@@ -1235,6 +1348,7 @@ public class DefaultVehicleController
    * Frees all resources allocated for the vehicle.
    */
   private void freeAllResources() {
+    cancelCommandRetry();
     scheduler.freeAll(this);
     commandProcessingTracker.allocationReset(Set.of());
     vehicleService.updateVehicleAllocatedResources(vehicle, List.of());
@@ -1544,5 +1658,8 @@ public class DefaultVehicleController
             UserNotification.Level.IMPORTANT
         )
     );
+  }
+
+  private record DeferredCommand(MovementCommand original, MovementCommand transformed) {
   }
 }

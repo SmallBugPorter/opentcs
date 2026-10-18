@@ -561,6 +561,15 @@ public class CommandProcessingTracker {
   }
 
   /**
+   * Returns the pending command state for diagnostic logging.
+   *
+   * @return The state name.
+   */
+  public String getPendingCommandStateName() {
+    return pendingCommandState.name();
+  }
+
+  /**
    * Returns a list of positions that the vehicle is expected to appear at, based on the movement
    * commands sent to it.
    * <p>

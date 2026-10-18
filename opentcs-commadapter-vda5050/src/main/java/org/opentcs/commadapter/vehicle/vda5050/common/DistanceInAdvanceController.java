@@ -33,13 +33,31 @@ public class DistanceInAdvanceController {
       @Nonnull
       List<MovementCommand> queuedCommands
   ) {
+    return getDistanceCovered(queuedCommands) < maxDistanceInAdvance;
+  }
+
+  /**
+   * Returns the distance represented by the queued commands, in millimetres.
+   *
+   * @param queuedCommands The commands to inspect.
+   * @return Their total path length.
+   */
+  public long getDistanceCovered(List<MovementCommand> queuedCommands) {
     requireNonNull(queuedCommands, "queuedCommands");
-    long distanceCovered = queuedCommands.stream()
+    return queuedCommands.stream()
         .map(MovementCommand::getStep)
         .filter(step -> step.getPath() != null)
         .mapToLong(step -> step.getPath().getLength())
         .sum();
 
-    return distanceCovered < maxDistanceInAdvance;
+  }
+
+  /**
+   * Returns the configured advance distance limit, in millimetres.
+   *
+   * @return The distance limit.
+   */
+  public long getMaxDistanceInAdvance() {
+    return maxDistanceInAdvance;
   }
 }

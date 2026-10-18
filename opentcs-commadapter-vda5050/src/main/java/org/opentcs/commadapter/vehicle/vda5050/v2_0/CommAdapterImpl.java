@@ -130,6 +130,7 @@ public class CommAdapterImpl
   private final MessageValidator outgoingMessageValidator;
   private final ProtocolVersion protocolVersion;
   private final WireMessageMapper wireMessageMapper;
+  private String commandAcceptanceDiagnostics = "not checked";
   /**
    * Checks whether incoming messages should be accepted.
    */
@@ -395,13 +396,25 @@ public class CommAdapterImpl
   }
 
   @Override
-  public boolean canAcceptNextCommand() {
-    return mapPreparation.isReady() && super.canAcceptNextCommand() && distanceInAdvanceController
-        .canAcceptNextCommand(
-            Stream
-                .concat(getUnsentCommands().stream(), getSentCommands().stream())
-                .collect(Collectors.toList())
-        );
+  public synchronized boolean canAcceptNextCommand() {
+    MapPreparation.Readiness map = mapPreparation.readiness();
+    boolean capacityAvailable = super.canAcceptNextCommand();
+    long distance = distanceInAdvanceController.getDistanceCovered(
+        Stream.concat(getUnsentCommands().stream(), getSentCommands().stream()).toList()
+    );
+    long distanceLimit = distanceInAdvanceController.getMaxDistanceInAdvance();
+    boolean distanceAvailable = distance < distanceLimit;
+    commandAcceptanceDiagnostics = "mapReady=" + map.ready() + ", mapStatus=" + map.status()
+        + ", stateAgeMs=" + map.stateAgeMillis() + ", stateFreshnessLimitMs=2000, "
+        + super.getCommandAcceptanceDiagnostics()
+        + ", distanceAvailable=" + distanceAvailable + ", queuedDistanceMm=" + distance
+        + ", maxDistanceInAdvanceMm=" + distanceLimit;
+    return map.ready() && capacityAvailable && distanceAvailable;
+  }
+
+  @Override
+  public synchronized String getCommandAcceptanceDiagnostics() {
+    return commandAcceptanceDiagnostics;
   }
 
   @Override

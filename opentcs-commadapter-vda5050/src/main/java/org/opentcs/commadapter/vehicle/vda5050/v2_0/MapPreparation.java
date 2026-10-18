@@ -91,7 +91,18 @@ class MapPreparation {
   }
 
   boolean isReady() {
-    return !enabled || ("READY".equals(status) && clock.getAsLong() - lastState <= 2000);
+    return readiness().ready();
+  }
+
+  Readiness readiness() {
+    long now = clock.getAsLong();
+    long last = lastState;
+    String currentStatus = status;
+    long age = last < 0 ? -1 : now - last;
+    return new Readiness(
+        !enabled || ("READY".equals(currentStatus) && now - last <= 2000),
+        currentStatus, age
+    );
   }
 
   String status() {
@@ -208,5 +219,8 @@ class MapPreparation {
 
   private static boolean nearZero(Double value) {
     return value != null && Double.isFinite(value) && Math.abs(value) <= 0.01;
+  }
+
+  record Readiness(boolean ready, String status, long stateAgeMillis) {
   }
 }

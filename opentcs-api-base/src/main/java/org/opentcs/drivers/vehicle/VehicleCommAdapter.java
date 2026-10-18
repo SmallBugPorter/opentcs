@@ -107,6 +107,17 @@ public interface VehicleCommAdapter
   boolean canAcceptNextCommand();
 
   /**
+   * Returns diagnostic details captured by the most recent command acceptance check.
+   * This must not perform another acceptance check or change command processing state.
+   * Callers should synchronize on the adapter across the check and this read.
+   *
+   * @return The last check's details, or an indication that diagnostics are unavailable.
+   */
+  default String getCommandAcceptanceDiagnostics() {
+    return "acceptance diagnostics unavailable";
+  }
+
+  /**
    * Returns the string the comm adapter recognizes as a recharge operation.
    *
    * @return The string the comm adapter recognizes as a recharge operation.
