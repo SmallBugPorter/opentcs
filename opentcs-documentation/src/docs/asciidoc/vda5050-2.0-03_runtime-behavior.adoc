@@ -71,9 +71,18 @@ For the _final_ movement of an order to be considered completed, it is _always_ 
 
 The vehicle driver generally expects the vehicle to report its logical position by setting `lastNodeId` properly.
 
+If a state message contains an `agvPosition` with `positionInitialized` set to `false`, its coordinates and node ID are not used to update the kernel's position.
+The last known point and its resource allocations are retained while localization is unavailable.
+An otherwise idle vehicle is reported as unavailable, and movement orders are held until localization is usable again, including when automatic map preparation is disabled.
+Vehicles reporting only `lastNodeId` without the optional `agvPosition` remain supported.
+
 There are cases in which a vehicle may not be able to report a logical position but would still be able to report its pose -- i.e. `lastNodeId` is an empty string, but `agvPosition` is contains usable data.
 (For instance, a vehicle may be able to determine its pose after being switched on, but may not know anything about logical positions in the driving course.)
 In such cases, the vehicle driver will try to derive the logical position from the vehicle's pose by matching it with the points in the driving course, taking into account the respective allowed deviations for coordinates and orientation angles set for them.
+
+After coordinate-based resolution, localization recovery or reconnection, the next usable `lastNodeId` is reported to the kernel even if it matches the driver's cached node.
+This prevents the kernel from keeping a point derived from coordinates after the vehicle resumes reporting its logical position.
+The driver logs this synchronization as `POSITION_RESYNCHRONIZED`; repeated normal reports of the same node do not trigger repeated position updates.
 
 NOTE: This fallback mechanism is intended for edge cases only, and relying heavily on it -- e.g. by never reporting a logical position at all -- may slow down the openTCS kernel, especially with plant models that contain a large number of vehicles and/or points.
 Therefore, vehicles should always report their logical positions when they can, which should be the case for every vehicle after executing its first order.
@@ -113,6 +122,7 @@ With every `state` message received, the vehicle driver will report one of the f
 === Topic `visualization`
 
 Upon receiving a message on the `visualization` topic, the vehicle driver will update the vehicle's precise position and orientation angle in openTCS with the data in the `agvPosition` structure.
+Coordinates marked with `positionInitialized=false` are ignored.
 Velocity data is not forwarded to openTCS.
 
 [#topic-order]

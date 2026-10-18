@@ -96,6 +96,10 @@ public class CommAdapterImpl
   private final MapPreparation mapPreparation;
   private String reportedMapPreparationStatus;
   /**
+   * Whether the next reported node must be forwarded even if it matches the adapter's cache.
+   */
+  private boolean positionSynchronizationRequired = true;
+  /**
    * Manages the client's connection to an MQTT broker.
    */
   private final MqttClientManager clientManager;
@@ -279,6 +283,7 @@ public class CommAdapterImpl
       return;
     }
 
+    positionSynchronizationRequired = true;
     mapPreparation.reset();
     updateMapPreparationStatus();
     super.enable();
@@ -398,6 +403,7 @@ public class CommAdapterImpl
   @Override
   public synchronized boolean canAcceptNextCommand() {
     MapPreparation.Readiness map = mapPreparation.readiness();
+    boolean localizationReady = isLocalizationUsable(getProcessModel().getCurrentState());
     boolean capacityAvailable = super.canAcceptNextCommand();
     long distance = distanceInAdvanceController.getDistanceCovered(
         Stream.concat(getUnsentCommands().stream(), getSentCommands().stream()).toList()
@@ -406,10 +412,11 @@ public class CommAdapterImpl
     boolean distanceAvailable = distance < distanceLimit;
     commandAcceptanceDiagnostics = "mapReady=" + map.ready() + ", mapStatus=" + map.status()
         + ", stateAgeMs=" + map.stateAgeMillis() + ", stateFreshnessLimitMs=2000, "
+        + "localizationReady=" + localizationReady + ", "
         + super.getCommandAcceptanceDiagnostics()
         + ", distanceAvailable=" + distanceAvailable + ", queuedDistanceMm=" + distance
         + ", maxDistanceInAdvanceMm=" + distanceLimit;
-    return map.ready() && capacityAvailable && distanceAvailable;
+    return map.ready() && localizationReady && capacityAvailable && distanceAvailable;
   }
 
   @Override
@@ -445,6 +452,11 @@ public class CommAdapterImpl
     if (canProcess && !mapPreparation.isReady()) {
       canProcess = false;
       reason = "Map preparation: " + mapPreparation.status();
+    }
+
+    if (canProcess && !isLocalizationUsable(getProcessModel().getCurrentState())) {
+      canProcess = false;
+      reason = "Vehicle localization is not initialized";
     }
 
     for (String operation : operations) {
@@ -508,6 +520,7 @@ public class CommAdapterImpl
 
     getExecutor().execute(() -> {
       incomingMessageFilter.reset();
+      positionSynchronizationRequired = true;
       mapPreparation.reset();
       updateMapPreparationStatus();
       getProcessModel().setBrokerConnected(false);
@@ -622,6 +635,7 @@ public class CommAdapterImpl
       return;
     }
 
+    positionSynchronizationRequired = true;
     mapPreparation.reset();
     updateMapPreparationStatus();
     if (message.getConnectionState() == ConnectionState.OFFLINE
@@ -650,11 +664,11 @@ public class CommAdapterImpl
 
     mapPreparation.onState(state);
     updateMapPreparationStatus();
-    messageResponseMatcher.onStateMessage(state);
 
     // Update the vehicle's current state and remember the old one.
     getProcessModel().setPreviousState(getProcessModel().getCurrentState());
     getProcessModel().setCurrentState(state);
+    messageResponseMatcher.onStateMessage(state);
 
     boolean orderRejectedNow = StateMappings.vehicleRejectsOrder(state);
     boolean orderRejectedBefore = StateMappings.vehicleRejectsOrder(
@@ -684,20 +698,7 @@ public class CommAdapterImpl
       }
     }
 
-    if (state.getAgvPosition() != null) {
-      processVehiclePosition(state.getAgvPosition());
-    }
-
-    if (state.getLastNodeId() != null && !state.getLastNodeId().isBlank()) {
-      String newVehiclePosition = state.getLastNodeId();
-      if (!Objects.equals(newVehiclePosition, getProcessModel().getPosition())) {
-        LOG.debug("{}: Vehicle is now at point {}", getName(), newVehiclePosition);
-        getProcessModel().setPosition(newVehiclePosition);
-      }
-    }
-    else if (state.getAgvPosition() != null) {
-      getProcessModel().positionResolutionRequested(getProcessModel().getPose());
-    }
+    updateReportedPosition(state);
 
     getProcessModel().setLoadHandlingDevices(toLoadHandlingDevices(state));
     getProcessModel().setEnergyLevel(state.getBatteryState().getBatteryCharge().intValue());
@@ -729,8 +730,9 @@ public class CommAdapterImpl
     );
     Vehicle.State mappedState = toVehicleState(state);
     getProcessModel().setState(
-        !mapPreparation.isReady() && mappedState == Vehicle.State.IDLE
-            ? Vehicle.State.UNAVAILABLE : mappedState
+        (!mapPreparation.isReady() || !isLocalizationUsable(state))
+            && mappedState == Vehicle.State.IDLE
+                ? Vehicle.State.UNAVAILABLE : mappedState
     );
     getProcessModel().setBoundingBox(
         getProcessModel().getBoundingBox().withLength(
@@ -741,6 +743,44 @@ public class CommAdapterImpl
     processVehicleOperatingMode(state);
 
     movementCommandManager.onStateMessage(state, this::onMovementCommandExecuted);
+  }
+
+  private boolean isLocalizationUsable(State state) {
+    // agvPosition is optional for vehicles reporting only logical node IDs.
+    return state.getAgvPosition() == null
+        || Boolean.TRUE.equals(state.getAgvPosition().isPositionInitialized());
+  }
+
+  private void updateReportedPosition(State state) {
+    if (!isLocalizationUsable(state)) {
+      // Do not resolve startup coordinates (often 0,0), clear the known point,
+      // or free resources merely because localization is temporarily unavailable.
+      positionSynchronizationRequired = true;
+      return;
+    }
+
+    if (state.getAgvPosition() != null) {
+      processVehiclePosition(state.getAgvPosition());
+    }
+    if (!state.getLastNodeId().isBlank()) {
+      String position = state.getLastNodeId();
+      if (!Objects.equals(position, getProcessModel().getPosition())) {
+        getProcessModel().setPosition(position);
+      }
+      else if (positionSynchronizationRequired) {
+        getProcessModel().resendPosition();
+      }
+      if (positionSynchronizationRequired) {
+        LOG.info("POSITION_RESYNCHRONIZED vehicle={} node={}", getName(), position);
+      }
+      positionSynchronizationRequired = false;
+    }
+    else if (state.getAgvPosition() != null) {
+      // The resolver updates the kernel's position, not this model's cached
+      // node. The next authoritative node must therefore be forwarded again.
+      positionSynchronizationRequired = true;
+      getProcessModel().positionResolutionRequested(getProcessModel().getPose());
+    }
   }
 
   private void updateMapPreparationStatus() {
@@ -834,6 +874,9 @@ public class CommAdapterImpl
   }
 
   private void processVehiclePosition(AgvPosition position) {
+    if (!Boolean.TRUE.equals(position.isPositionInitialized())) {
+      return;
+    }
     getProcessModel().setPose(
         new Pose(
             new Triple(
@@ -852,10 +895,12 @@ public class CommAdapterImpl
    * @param order the order to send.
    */
   public void sendOrder(Order order) {
-    if (!mapPreparation.isReady()) {
+    if (!mapPreparation.isReady()
+        || !isLocalizationUsable(getProcessModel().getCurrentState())) {
       LOG.debug(
-          "{}: Order held until map preparation completes: {}", getName(),
-          mapPreparation.status()
+          "{}: Order held until map and localization are ready: mapStatus={} localizationReady={}",
+          getName(), mapPreparation.status(),
+          isLocalizationUsable(getProcessModel().getCurrentState())
       );
       return;
     }

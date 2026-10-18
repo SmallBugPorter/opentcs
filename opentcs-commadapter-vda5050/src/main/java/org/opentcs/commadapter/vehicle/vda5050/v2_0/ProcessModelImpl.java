@@ -131,6 +131,18 @@ public class ProcessModelImpl
   }
 
   /**
+   * Re-publishes the current node after localization recovery or coordinate-based resolution.
+   * This does not clear the node or emit a null position that would release vehicle resources.
+   */
+  public void resendPosition() {
+    if (getPosition() != null) {
+      getPropertyChangeSupport().firePropertyChange(
+          VehicleProcessModel.Attribute.POSITION.name(), null, getPosition()
+      );
+    }
+  }
+
+  /**
    * Sets the current/most recent state reported by the vehicle.
    *
    * @param currentState The current/most recent state reported by the vehicle.
