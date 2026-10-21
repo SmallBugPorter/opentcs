@@ -17,6 +17,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -474,6 +475,64 @@ class DefaultVehicleControllerTest {
     when(commAdapter.enqueueCommand(next)).thenReturn(true);
     stdVehicleController.onAllocation(Set.of(destination));
     assertEquals(List.of(next), new ArrayList<>(stdVehicleController.getCommandsSent()));
+  }
+
+  @Test
+  void repeatedPositionWhileWaitingForAllocationDoesNotBlockSending() {
+    MovementCommand command = prepareCommands("position-allocation", 1).getFirst();
+    Point current = preparePositionResynchronization();
+    vehicleModel.setPosition(current.getName());
+    stdVehicleController.propertyChange(new PropertyChangeEvent(
+        vehicleModel, VehicleProcessModel.Attribute.POSITION.name(),
+        null, vehicleModel.getPosition()
+    ));
+    when(commAdapter.enqueueCommand(command)).thenReturn(true);
+    stdVehicleController.onAllocation(Set.of(command.getStep().getDestinationPoint()));
+    assertEquals(List.of(command), new ArrayList<>(stdVehicleController.getCommandsSent()));
+  }
+
+  @Test
+  void repeatedPositionWhileWaitingToSendDoesNotBlockRetry() {
+    MovementCommand command = prepareCommands("position-retry", 1).getFirst();
+    stdVehicleController.onAllocation(Set.of(command.getStep().getDestinationPoint()));
+    Point current = preparePositionResynchronization();
+    vehicleModel.setPosition(current.getName());
+    stdVehicleController.propertyChange(new PropertyChangeEvent(
+        vehicleModel, VehicleProcessModel.Attribute.POSITION.name(),
+        null, vehicleModel.getPosition()
+    ));
+    when(commAdapter.enqueueCommand(command)).thenReturn(true);
+    retries.getFirst().run();
+    assertEquals(List.of(command), new ArrayList<>(stdVehicleController.getCommandsSent()));
+  }
+
+  @Test
+  void changedPositionStillBlocksSendingAndDuplicateDoesNotUnblockIt() {
+    MovementCommand command = prepareCommands("position-unexpected", 1).getFirst();
+    preparePositionResynchronization();
+    Point unexpected = new Point("unexpected-position");
+    when(vehicleService.fetch(Point.class, unexpected.getName()))
+        .thenReturn(Optional.of(unexpected));
+    vehicleModel.setPosition(unexpected.getName());
+    when(vehicleService.fetch(Vehicle.class, vehicle.getReference()))
+        .thenReturn(Optional.of(vehicle.withCurrentPosition(unexpected.getReference())));
+    stdVehicleController.propertyChange(new PropertyChangeEvent(
+        vehicleModel, VehicleProcessModel.Attribute.POSITION.name(),
+        null, vehicleModel.getPosition()
+    ));
+    when(commAdapter.enqueueCommand(command)).thenReturn(true);
+    stdVehicleController.onAllocation(Set.of(command.getStep().getDestinationPoint()));
+    verify(commAdapter, never()).enqueueCommand(any());
+    assertTrue(stdVehicleController.getCommandsSent().isEmpty());
+  }
+
+  private Point preparePositionResynchronization() {
+    when(configuration.requireManualReroutingAfterUnexpectedPosition()).thenReturn(true);
+    Point current = new Point("resynchronized-position");
+    when(vehicleService.fetch(Vehicle.class, vehicle.getReference()))
+        .thenReturn(Optional.of(vehicle.withCurrentPosition(current.getReference())));
+    when(vehicleService.fetch(Point.class, current.getName())).thenReturn(Optional.of(current));
+    return current;
   }
 
   private List<MovementCommand> prepareCommands(String orderName, int count) {

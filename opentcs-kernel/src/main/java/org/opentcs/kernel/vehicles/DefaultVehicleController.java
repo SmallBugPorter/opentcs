@@ -1415,6 +1415,12 @@ public class DefaultVehicleController
 
   private void updatePositionWithOrder(Point point) {
     if (commandProcessingTracker.getSentCommands().isEmpty()) {
+      // Reconnection/localization recovery may resend the same logical position. With no
+      // command in flight this is not movement. Preserve allocations and existing send blocks.
+      Vehicle currentVehicle = vehicleService.fetch(Vehicle.class, vehicle).orElseThrow();
+      if (point != null && point.getReference().equals(currentVehicle.getCurrentPosition())) {
+        return;
+      }
       if (commandProcessingTracker.getAllocationPendingCommand().isPresent()) {
         LOG.warn(
             "{}: Reported new position {} but we are waiting for resource allocation for: {}",
