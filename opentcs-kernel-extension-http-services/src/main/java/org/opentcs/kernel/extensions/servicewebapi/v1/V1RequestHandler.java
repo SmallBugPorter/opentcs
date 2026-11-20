@@ -32,6 +32,7 @@ import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PostPeripheralJobR
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PostTopologyUpdateRequestTO;
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PostTransportOrderRequestTO;
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PostVehicleCommAdapterMessageRequestTO;
+import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PutVehicleSpeedLimitTO;
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PostVehicleRoutesRequestTO;
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PostVehicleRoutesResponseTO;
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PutEnvironmentalEntityEnvelopeTO;
@@ -178,6 +179,8 @@ public class V1RequestHandler
           );
           put("/vehicles/{NAME}/commAdapter/enabled", this::handlePutVehicleCommAdapterEnabled);
           post("/vehicles/{NAME}/commAdapter/message", this::handlePostVehicleCommAdapterMessage);
+          put("/vehicles/{NAME}/speedLimit", this::handlePutVehicleSpeedLimit);
+          get("/vehicles/{NAME}/speedLimit", this::handleGetVehicleSpeedLimit);
           put("/vehicles/{NAME}/paused", this::handlePutVehiclePaused);
           put("/vehicles/{NAME}/integrationLevel", this::handlePutVehicleIntegrationLevel);
           post("/vehicles/{NAME}/withdrawal", this::handlePostWithdrawalByVehicle);
@@ -291,6 +294,19 @@ public class V1RequestHandler
     vehicleHandler.putVehicleCommAdapterEnabled(ctx.pathParam("NAME"), ctx.queryParam("newValue"));
     ctx.contentType(HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8);
     ctx.result("");
+  }
+
+  private void handlePutVehicleSpeedLimit(Context ctx) {
+    ctx.contentType(HttpConstants.CONTENT_TYPE_APPLICATION_JSON_UTF8);
+    ctx.status(202);
+    ctx.result(jsonBinder.toJson(vehicleHandler.putVehicleSpeedLimit(
+        ctx.pathParam("NAME"), jsonBinder.fromJson(ctx.body(), PutVehicleSpeedLimitTO.class)
+    )));
+  }
+
+  private void handleGetVehicleSpeedLimit(Context ctx) {
+    ctx.contentType(HttpConstants.CONTENT_TYPE_APPLICATION_JSON_UTF8);
+    ctx.result(jsonBinder.toJson(vehicleHandler.getVehicleSpeedLimit(ctx.pathParam("NAME"))));
   }
 
   private void handlePostVehicleCommAdapterMessage(Context ctx)

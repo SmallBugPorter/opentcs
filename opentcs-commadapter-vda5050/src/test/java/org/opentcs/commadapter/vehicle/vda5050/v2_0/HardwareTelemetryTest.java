@@ -141,4 +141,37 @@ class HardwareTelemetryTest {
     telemetry.invalidate();
     assertThat(properties).containsEntry("motor:valid", "false");
   }
+
+  @Test
+  void speedLimitReportsRequestedAndAppliedSeparatelyAndExpires() {
+    Map<String, String> refs = new HashMap<>(Map.of(
+        "schemaVersion", "1", "valid", "true", "sampleAgeMs", "0",
+        "maximumMps", "1.0", "appliedMps", "0.8", "requestedMps", "0.4",
+        "requestId", "speed-limit-test", "status", "pending", "error", ""
+    ));
+    Map<String, String> properties = new HashMap<>();
+    ScheduledExecutorService executor = mock();
+    List<Runnable> timers = new ArrayList<>();
+    doAnswer(invocation -> {
+      timers.add(invocation.getArgument(0, Runnable.class));
+      return null;
+    }).when(executor).schedule(any(Runnable.class), eq(5000L), eq(TimeUnit.MILLISECONDS));
+    HardwareTelemetry telemetry = new HardwareTelemetry(executor, properties::put);
+    telemetry.update(state("speedLimit", refs));
+    assertThat(properties).containsEntry("speedLimit:valid", "true")
+        .containsEntry("speedLimit:appliedMps", "0.8")
+        .containsEntry("speedLimit:requestedMps", "0.4")
+        .containsEntry("speedLimit:status", "pending");
+    timers.getLast().run();
+    assertThat(properties).containsEntry("speedLimit:valid", "false");
+    for (String invalid : List.of("1.1", "NaN", "-0.1", "0", "Infinity")) {
+      refs.put("requestedMps", invalid);
+      assertThat(HardwareTelemetry.values("speedLimit", state("speedLimit", refs))).isNull();
+    }
+    refs.put("requestedMps", "0.4");
+    refs.put("status", "applied");
+    assertThat(HardwareTelemetry.values("speedLimit", state("speedLimit", refs))).isNull();
+    refs.put("status", "unknown");
+    assertThat(HardwareTelemetry.values("speedLimit", state("speedLimit", refs))).isNull();
+  }
 }

@@ -6,6 +6,9 @@ import static java.util.Objects.requireNonNull;
 
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +38,7 @@ import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PostVehicleCommAda
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PostVehicleRoutesRequestTO;
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PutVehicleAcceptableOrderTypesTO;
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PutVehicleEnergyLevelThresholdSetTO;
+import org.opentcs.kernel.extensions.servicewebapi.v1.binding.PutVehicleSpeedLimitTO;
 import org.opentcs.kernel.extensions.servicewebapi.v1.binding.shared.Property;
 import org.opentcs.kernel.extensions.servicewebapi.v1.converter.VehicleConverter;
 
@@ -207,6 +211,66 @@ public class VehicleHandler {
                   () -> new IllegalArgumentException("Unknown vehicle driver class name: " + value)
               );
       vehicleService.attachCommAdapter(vehicle.getReference(), newAdapter);
+    });
+  }
+
+  public Map<String, String> getVehicleSpeedLimit(String name) {
+    return executorWrapper.callAndWait(() -> {
+      Vehicle vehicle = vehicleService.fetch(Vehicle.class, name)
+          .orElseThrow(() -> new ObjectUnknownException("Unknown vehicle: " + name));
+      return speedLimitState(vehicle);
+    });
+  }
+
+  private static Map<String, String> speedLimitState(Vehicle vehicle) {
+    Map<String, String> result = new HashMap<>();
+    vehicle.getProperties().forEach((key, value) -> {
+      if (key.startsWith("speedLimit:")) {
+        result.put(key.substring("speedLimit:".length()), value);
+      }
+    });
+    try {
+      long age = Duration.between(Instant.parse(result.get("updatedAt")), Instant.now()).toMillis();
+      if (age < 0 || age >= 5000 || !"1".equals(result.get("schemaVersion"))) {
+        result.put("valid", "false");
+      }
+    }
+    catch (RuntimeException exc) {
+      result.put("valid", "false");
+    }
+    return result;
+  }
+
+  public Map<String, Object> putVehicleSpeedLimit(String name, PutVehicleSpeedLimitTO request) {
+    return executorWrapper.callAndWait(() -> {
+      Vehicle vehicle = vehicleService.fetch(Vehicle.class, name)
+          .orElseThrow(() -> new ObjectUnknownException("Unknown vehicle: " + name));
+      Map<String, String> state = speedLimitState(vehicle);
+      if (!"true".equals(state.get("valid"))) {
+        throw new IllegalArgumentException("Fresh vehicle speed-limit capability is required");
+      }
+      double maximum = Double.parseDouble(state.get("maximumMps"));
+      if (!Double.isFinite(maximum) || request.getMaxSpeedMps() > maximum) {
+        throw new IllegalArgumentException("maxSpeedMps exceeds vehicle linear.max_velocity");
+      }
+      String actionId = "speed-limit-" + request.getRequestId();
+      if (actionId.equals(state.get("requestId"))
+          && Double.compare(request.getMaxSpeedMps(), Double.parseDouble(state.get("requestedMps"))) != 0) {
+        throw new IllegalArgumentException("requestId cannot be reused with a different speed limit");
+      }
+      if (List.of("pending", "saving").contains(state.get("status"))
+          && !actionId.equals(state.get("requestId"))) {
+        throw new IllegalArgumentException("Another speed limit request is pending");
+      }
+      vehicleService.sendCommAdapterMessage(vehicle.getReference(), new VehicleCommAdapterMessage(
+          "vda5050:sendInstantAction", Map.of(
+              "actionType", "setSpeedLimit", "actionId", actionId, "blockingType", "NONE",
+              "parameter.maxSpeedMps", BigDecimal.valueOf(request.getMaxSpeedMps()).stripTrailingZeros().toPlainString(),
+              "parameter.expiresAtMillis", Long.toString(System.currentTimeMillis() + 60000)
+          )
+      ));
+      return Map.<String, Object>of("accepted", true, "requestId", actionId,
+                                   "requestedMps", request.getMaxSpeedMps(), "status", "requested");
     });
   }
 

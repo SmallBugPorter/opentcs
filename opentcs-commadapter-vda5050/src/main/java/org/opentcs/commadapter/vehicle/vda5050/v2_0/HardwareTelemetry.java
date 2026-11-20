@@ -24,7 +24,8 @@ final class HardwareTelemetry {
   HardwareTelemetry(ScheduledExecutorService executor, BiConsumer<String, String> properties) {
     channels = List.of(
         new Channel("motor", executor, properties),
-        new Channel("magnetic", executor, properties), new Channel("device", executor, properties)
+        new Channel("magnetic", executor, properties), new Channel("device", executor, properties),
+        new Channel("speedLimit", executor, properties)
     );
   }
 
@@ -38,7 +39,16 @@ final class HardwareTelemetry {
 
   static Map<String, Predicate<String>> fields(String group) {
     Map<String, Predicate<String>> result = new LinkedHashMap<>();
-    if (group.equals("motor")) {
+    if (group.equals("speedLimit")) {
+      for (String key : List.of("maximumMps", "appliedMps", "requestedMps")) {
+        result.put(key, value -> new BigDecimal(value).signum() > 0
+            && Double.isFinite(Double.parseDouble(value)));
+      }
+      result.put("requestId", value -> value.matches("[A-Za-z0-9_-]{0,128}"));
+      result.put("status", value -> List.of("applied", "pending", "saving", "failed").contains(value));
+      result.put("error", value -> value.length() <= 240);
+    }
+    else if (group.equals("motor")) {
       for (String side : List.of("left", "right")) {
         result.put(side + ".valid", value -> value.equals("true") || value.equals("false"));
         result.put(side + ".hallCount", integer(Integer.MIN_VALUE, Integer.MAX_VALUE));
@@ -110,12 +120,20 @@ final class HardwareTelemetry {
         if (value == null && group.equals("device")) {
           result.put(group + ":" + field.getKey(), null);
         }
-        else if (value == null || value.length() > 32 || !field.getValue().test(value)) {
+        else if (value == null || value.length() > (group.equals("speedLimit") ? 240 : 32)
+            || !field.getValue().test(value)) {
           return null;
         }
         else {
           result.put(group + ":" + field.getKey(), value);
         }
+      }
+      if (group.equals("speedLimit")
+          && (new BigDecimal(refs.get("appliedMps")).compareTo(new BigDecimal(refs.get("maximumMps"))) > 0
+              || new BigDecimal(refs.get("requestedMps")).compareTo(new BigDecimal(refs.get("maximumMps"))) > 0
+              || ("applied".equals(refs.get("status"))
+                  && new BigDecimal(refs.get("appliedMps")).compareTo(new BigDecimal(refs.get("requestedMps"))) != 0))) {
+        return null;
       }
       return result;
     }
