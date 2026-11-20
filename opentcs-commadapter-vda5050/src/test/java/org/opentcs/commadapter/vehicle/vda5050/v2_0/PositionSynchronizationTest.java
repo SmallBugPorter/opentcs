@@ -96,6 +96,66 @@ class PositionSynchronizationTest {
   }
 
   @Test
+  void publishesBatteryMetadataAfterKernelListenerAttaches() {
+    // AttachmentManager initializes the adapter BEFORE attaching the kernel controller.
+    adapter.initialize();
+    Map<String, String> battery = new java.util.HashMap<>();
+    adapter.getProcessModel().addPropertyChangeListener(event -> {
+      if (event.getPropertyName().equals(VehicleProcessModel.Attribute.VEHICLE_PROPERTY.name())) {
+        VehicleProcessModel.VehiclePropertyUpdate update
+            = (VehicleProcessModel.VehiclePropertyUpdate) event.getNewValue();
+        battery.put(update.getKey(), update.getValue());
+      }
+    });
+    adapter.enable();
+    receive(BatteryTelemetryTest.state().setInformation(List.of()));
+    assertThat(battery).containsEntry("battery:schemaVersion", "1")
+        .containsEntry("battery:maxAgeMs", "5000")
+        .containsEntry("battery:valid", "false");
+    receive(BatteryTelemetryTest.state());
+    assertThat(battery).containsEntry("battery:valid", "true")
+        .containsEntry("battery:schemaVersion", "1")
+        .containsEntry("battery:maxAgeMs", "5000");
+    receive(HardwareTelemetryTest.state());
+    assertThat(battery).containsEntry("motor:schemaVersion", "1")
+        .containsEntry("motor:maxAgeMs", "5000")
+        .containsEntry("motor:left.speedCountsPerSecond", "-123")
+        .containsEntry("motor:valid", "true");
+    adapter.disable();
+    assertThat(battery).containsEntry("motor:valid", "false");
+    assertThat(battery).containsEntry("battery:valid", "false");
+    adapter.terminate();
+  }
+
+  @Test
+  void publishesBatteryPropertiesAndInvalidatesOnDisconnect() {
+    Map<String, String> battery = new java.util.HashMap<>();
+    adapter.getProcessModel().addPropertyChangeListener(event -> {
+      if (event.getPropertyName().equals(VehicleProcessModel.Attribute.VEHICLE_PROPERTY.name())) {
+        VehicleProcessModel.VehiclePropertyUpdate update
+            = (VehicleProcessModel.VehiclePropertyUpdate) event.getNewValue();
+        battery.put(update.getKey(), update.getValue());
+      }
+    });
+    receive(BatteryTelemetryTest.state());
+    assertThat(battery).containsEntry("battery:valid", "true")
+        .containsEntry("battery:currentA", "-12.3");
+    adapter.onDisconnect();
+    assertThat(battery).containsEntry("battery:valid", "false");
+    receive(BatteryTelemetryTest.state());
+    adapter.onIncomingMessage(
+        new IncomingMessage(
+            "connection", binder.toJson(
+                new Connection(
+                    2L, Instant.now(), "2.1.0", "dx", "agv-0008", ConnectionState.OFFLINE
+                )
+            )
+        )
+    );
+    assertThat(battery).containsEntry("battery:valid", "false");
+  }
+
+  @Test
   void neverUsesUninitializedStartupCoordinatesAsARealPoint() {
     receive(state("", 0, false));
     assertThat(kernelPosition).isNull();

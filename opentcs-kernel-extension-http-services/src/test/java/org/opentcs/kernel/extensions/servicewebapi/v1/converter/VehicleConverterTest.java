@@ -64,6 +64,44 @@ class VehicleConverterTest {
   }
 
   @Test
+  void exposesHardwarePropertiesWithoutChangingTheirUnits() {
+    Map<String, String> properties = Map.of(
+        "motor:left.speedCountsPerSecond", "-123", "motor:schemaVersion", "1",
+        "magnetic:front.x0Mm", "12.3", "device:bms.serialNumber", "SN-123"
+    );
+    assertThat(
+        vehicleConverter.toGetVehicleResponseTO(new Vehicle("V1").withProperties(properties))
+            .getProperties(), is(properties)
+    );
+  }
+
+  @Test
+  void exposesBatteryPropertiesAsStringMapInVehicleHttpResponse()
+      throws Exception {
+    Map<String, String> battery = Map.of(
+        "battery:schemaVersion", "1", "battery:valid", "true",
+        "battery:voltageV", "51.2", "battery:currentA", "-12.3",
+        "battery:temperatureC", "-5", "battery:cycleCount", "40000",
+        "battery:totalCapacityAh", "5000", "battery:charging", "false",
+        "battery:updatedAt", "2026-11-19T08:00:00Z", "battery:maxAgeMs", "5000"
+    );
+    Vehicle vehicle = new Vehicle("Vehicle-0001").withProperties(battery).withEnergyLevel(82);
+    GetVehicleResponseTO response = vehicleConverter.toGetVehicleResponseTO(vehicle);
+    com.fasterxml.jackson.databind.ObjectMapper mapper
+        = new com.fasterxml.jackson.databind.ObjectMapper()
+            .registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+    com.fasterxml.jackson.databind.JsonNode json = mapper.readTree(
+        mapper.writeValueAsString(response)
+    );
+    assertThat(json.get("properties").isObject(), is(true));
+    for (Map.Entry<String, String> field : battery.entrySet()) {
+      assertThat(json.get("properties").get(field.getKey()).asText(), is(field.getValue()));
+      assertThat(json.get("properties").get(field.getKey()).isTextual(), is(true));
+    }
+    assertThat(json.get("energyLevel").asInt(), is(82));
+  }
+
+  @Test
   void checkToVehicleCreationTOs() {
     VehicleTO vehicleTo = new VehicleTO("V1")
         .setBoundingBox(new BoundingBoxTO(500, 100, 700, new CoupleTO(0, 0)))

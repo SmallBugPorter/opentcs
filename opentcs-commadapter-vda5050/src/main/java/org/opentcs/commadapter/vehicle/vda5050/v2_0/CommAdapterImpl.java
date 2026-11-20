@@ -134,6 +134,8 @@ public class CommAdapterImpl
   private final MessageValidator outgoingMessageValidator;
   private final ProtocolVersion protocolVersion;
   private final WireMessageMapper wireMessageMapper;
+  private final BatteryTelemetry batteryTelemetry;
+  private final HardwareTelemetry hardwareTelemetry;
   private String commandAcceptanceDiagnostics = "not checked";
   /**
    * Checks whether incoming messages should be accepted.
@@ -214,6 +216,8 @@ public class CommAdapterImpl
             .orElse(DestinationOperations.CHARGE),
         kernelExecutor
     );
+    this.batteryTelemetry = new BatteryTelemetry(kernelExecutor, getProcessModel()::setProperty);
+    this.hardwareTelemetry = new HardwareTelemetry(kernelExecutor, getProcessModel()::setProperty);
     this.mqttSetting = requireNonNull(mqttSetting, "mqttSetting");
     this.protocolVersion = ProtocolVersion.fromConfiguration(
         vehicle.getProperty(ObjectProperties.PROPKEY_VEHICLE_VERSION)
@@ -274,6 +278,8 @@ public class CommAdapterImpl
 
   @Override
   public void terminate() {
+    batteryTelemetry.invalidate();
+    hardwareTelemetry.invalidate();
     super.terminate();
   }
 
@@ -283,6 +289,10 @@ public class CommAdapterImpl
       return;
     }
 
+    // AttachmentManager attaches the kernel property listener after initialize().
+    // Publish metadata here so it is not cached before that listener can observe it.
+    batteryTelemetry.invalidate();
+    hardwareTelemetry.invalidate();
     positionSynchronizationRequired = true;
     mapPreparation.reset();
     updateMapPreparationStatus();
@@ -509,6 +519,8 @@ public class CommAdapterImpl
     }
 
     getExecutor().execute(() -> {
+      batteryTelemetry.invalidate();
+      hardwareTelemetry.invalidate();
       getProcessModel().setBrokerConnected(false);
       getProcessModel().setCommAdapterConnected(false);
     });
@@ -523,6 +535,8 @@ public class CommAdapterImpl
       positionSynchronizationRequired = true;
       mapPreparation.reset();
       updateMapPreparationStatus();
+      batteryTelemetry.invalidate();
+      hardwareTelemetry.invalidate();
       getProcessModel().setBrokerConnected(false);
       getProcessModel().setCommAdapterConnected(false);
       getProcessModel().setVehicleIdle(true);
@@ -638,6 +652,8 @@ public class CommAdapterImpl
     positionSynchronizationRequired = true;
     mapPreparation.reset();
     updateMapPreparationStatus();
+    batteryTelemetry.invalidate();
+    hardwareTelemetry.invalidate();
     if (message.getConnectionState() == ConnectionState.OFFLINE
         || message.getConnectionState() == ConnectionState.HIBERNATING
         || message.getConnectionState() == ConnectionState.CONNECTIONBROKEN) {
@@ -702,6 +718,8 @@ public class CommAdapterImpl
 
     getProcessModel().setLoadHandlingDevices(toLoadHandlingDevices(state));
     getProcessModel().setEnergyLevel(state.getBatteryState().getBatteryCharge().intValue());
+    batteryTelemetry.update(state);
+    hardwareTelemetry.update(state);
     getProcessModel().setProperty(
         "vda5050:errors.critical", StateMappings.toErrorPropertyValue(state, ErrorLevel.CRITICAL)
     );
